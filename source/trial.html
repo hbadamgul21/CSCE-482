@@ -24,6 +24,14 @@ div.mydiv2 {
     border: 1px solid #d3d3d3;
 }
 
+div.mydiv2 a{
+    position: absolute;
+    width: 60px;
+    height: 200px;
+    background-color: #ddd; 
+    border: 1px solid #d3d3d3;
+}
+
  /* Start of Top Menu formatting */
 body {
   margin: 0;
@@ -99,9 +107,9 @@ body {
 <body>
 
 <div class="topnav">
-  <a class="active" href="#open">Open</a>
+  <a href="#open">Open</a>
   <a href="#save">Save</a>
-  <a href="#instrument"> Add Instrument(s)</a>
+  <a href="#track"> Add Track</a>
   <a href="#playback">Playback</a>
 </div>
 
@@ -117,64 +125,79 @@ body {
 
 <p style="padding-left:16px">Track 1</p>
 <div id="div2" class = "mydiv2">
+<!--	<a><br><input type="image" id="selinst" style="height:30px;width:30px;padding-left:12px;" src="tuba.png"/></a> -->	
 	<div class="rectangle"></div>
 </div>
 
- 
- 
+<div style = "position:relative;top:210px;left:16px;">
+	<span>Instrument: </span>
+	<select id="ddlViewBy" onChange="changeInst(this);">
+	</select>
+</div>
 <script src="soundfont-player.js"></script>
 <script>
 
+//change instrument to selected choice in drop-down
+function changeInst(e){
+	  var name = e.options[e.selectedIndex].text;
+	  console.log("Loading " + name + "...");
+	  inst = soundfont.instrument(name);
+	  console.log(inst);
+	  inst.onready(function() {
+		console.log("Instrument " + name + " ready.");
+	  });
+}
 
+//parse JSON file and add instruments to drop-down
 var xhr = new XMLHttpRequest();
-    xhr.open("GET", "fluidR3.json");
-    xhr.send();
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState !== 4) return;
-      if (xhr.status !== 200) return console.error("couldnt fetch instruments, defaulting to piano");
+xhr.open("GET", "fluidR3.json");
+xhr.send();
+xhr.onreadystatechange = function () {
+	if (xhr.readyState !== 4) return;
+	if (xhr.status !== 200) return console.error("couldnt fetch instruments, defaulting to piano");
 
-      var section = document.getElementById("panel");
+	var section = document.getElementById("panel");
 
-      (JSON.parse(xhr.response) || []).sort().forEach(function (instrumentName) {
-        var radio = document.createElement("input");
-        var label = document.createElement("label");
-        radio.setAttribute("name", "instruments");
-        radio.setAttribute("type", "radio");
-        radio.setAttribute("value", instrumentName);
-        radio.addEventListener("change", function(e) {
-          var name = e.target.value;
-          console.log("Loading " + name + "...");
-      //    btn.setAttribute("disabled", true);
-          inst = soundfont.instrument(name);
-          console.log(inst);
-          inst.onready(function() {
-            console.log("Instrument " + name + " ready.");
-    //        btn.removeAttribute("disabled");
-            renewMIDIAccess()
-          });
-        });
-        label.appendChild(radio);
-        label.appendChild(document.createTextNode(instrumentName));
-        section.appendChild(label);
-      });
-    };
+	(JSON.parse(xhr.response) || []).sort().forEach(function (instrumentName) {
+		var e = document.getElementById("ddlViewBy");
+		var option = document.createElement("option");
+		option.text = instrumentName;
+		option.value = instrumentName;
+		option.selected = "selected";
+		e.appendChild(option);
+	});
+};
 
 
 var navopen = document.querySelector(".topnav a[href='#open']");
 var navsave = document.querySelector(".topnav a[href='#save']");
-var navinstrument = document.querySelector(".topnav a[href='#instrument']");
+var navtrack = document.querySelector(".topnav a[href='#track']");
 var navplayback = document.querySelector(".topnav a[href='#playback']");
 
- navinstrument.addEventListener("click", function(e){
-	navinstrument.setAttribute("class", "active");
-	if(document.getElementById("panel").style.display == "block"){
-		document.getElementById("panel").style.display = "none";
-		navinstrument.setAttribute("class", "");
-	}
-	else
-		document.getElementById("panel").style.display = "block";
+ navopen.addEventListener("click", function(e){
+	navopen.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navopen.setAttribute("class", "");}, 1000);
+});
+
+ navsave.addEventListener("click", function(e){
+	navsave.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navsave.setAttribute("class", "");}, 1000);
+});
+
+ navtrack.addEventListener("click", function(e){
+	navtrack.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navtrack.setAttribute("class", "");}, 1000);
+});
+
+ navplayback.addEventListener("click", function(e){
+	navplayback.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navplayback.setAttribute("class", "");}, 1000);
 	
-	});
+});
 
  var ctx = new AudioContext();
  var soundfont = new Soundfont(ctx);
@@ -248,7 +271,7 @@ function dragElement(elmnt) {
   function dragMouseDown(e) {
     e = e || window.event;
     e.preventDefault();
-	inst.play(oldpitch);
+	inst.play(oldpitch, ctx.currentTime, { duration: 0.5});
     // get the mouse cursor position at startup:
     pos3 = e.clientX;
     pos4 = e.clientY;
