@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link href="dec.css" rel="stylesheet"></link>
+<script src="https://togetherjs.com/togetherjs-min.js"></script>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
 <style>
 /* Music Note Bar */
@@ -54,20 +57,62 @@ body {
   background-color: #4CAF50;
   color: white;
 }
+
+/*dropdown menu*/
+.dropbtn
+{
+  border: none;
+  cloor: white;
+}
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+.dropdown-content a:hover {background-color: #ddd;}
+.dropdown:hover .dropdown-content {display: block;}
+.dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+
 </style>
 </head>
 <body>
-
 <div class="topnav">
-  <a class="active" href="#open">Open</a>
+  <a class="active" onclick="location.href='open.html';" href="#open">Open</a>
+  <!--<a class="active" href="#open">Open</a>-->
   <a href="#save">Save</a>
-  <a href="#instrument">Add Instrument(s)</a>
+  <!--<a href="#instrument">Add Instrument(s)</a>-->
+<div class="dropdown">
+  <a href="#instrument" class="dropbtn">Add Instrument(s)</a>
+  <div class="dropdown-content">
+    <a href="#">Instrument 1</a>
+    <a href="#">Instrument 2</a>
+    <a href="#">Instrument 3</a>
+  </div>
+</div>
+
+  
+  
+  
+  
+  <a href="#track">Add track(s)</a>
   <a href="#playback">Playback</a>
+  <a onclick="TogetherJS(this); return false;">Share(on/off)</a>
 </div>
  <section>
     <type="text" id="notes" value="" />
   </section>
-<h1 style="padding-left:16px">Music Editor</h1>
+<h1 style="padding-left:16px">Online Collabrate Music Editor</h1>
 
 
 <p style="padding-left:16px">Track 1</p>
@@ -219,5 +264,10 @@ function getPitch(yPosition) {
 	return pitch;
   }
 </script>
+
+<div class="doc">
+  <div id="doc" class="doc__text-editor">Notes:</div>
+</div>
+<script src="canvas.js"></script>
 </body>
 </html>
