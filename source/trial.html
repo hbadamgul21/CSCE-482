@@ -91,7 +91,7 @@ body {
 <div class="topnav">
   <a class="active" onclick="location.href='open.html';" href="#open">Open</a>
   <!--<a class="active" href="#open">Open</a>-->
-  <a href="#save">Save</a>
+  <a id="Save" href="#save">Save</a>
   <a href="#track">Add track</a>
   <a href="#playback">Playback</a>
   <a onclick="TogetherJS(this); return false;">Share(on/off)</a>
@@ -119,6 +119,9 @@ body {
 	</select>
 </div>
 <script src="soundfont-player.js"></script>
+<script src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.js" ></script>
+<script src="save.js"></script>
+
 <script>
 
 //change instrument to selected choice in drop-down
