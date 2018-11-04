@@ -10,33 +10,30 @@
 .mydiv {
     position: absolute;
     width: 100px;
-    height: 20px;
+    height: 9.52333px;
     left: 50px;
     top: 50px;
-    background-color: #2196F3;
-    border: 1px solid #d3d3d3;
+    background-color: #2196F3; 
+   /* border: 1px solid #d3d3d3; */
 }
 
  /* Track box */
-.mydiv2 {
+canvas.mydiv2 {
     position: absolute;
-    left: 70px;
-    width: 900px;
+    left: 16px;
+    width: 800px;
     height: 200px;
-    
-    background-color: #FFFFFF;
+    background-color: #FFFFFF; 
     border: 1px solid #d3d3d3;
 }
 
 .mydiv3 {
     position: absolute;
     left: 5px;
-    width: 50px;
-    height: 50px;
-    border: 1px solid #d3d3d3;
-
+    width: 35px;
+    height: 20px;
+  /*  border: 1px solid #d3d3d3;	*/
 }
-
 
  /* Start of Top Menu formatting */
 body {
@@ -58,26 +55,15 @@ body {
   font-size: 17px;
 }
 
-.topnav a:hover {
-  background-color: #ddd;
-  color: black;
+.dropdown {
+    position: relative;
+    display: inline-block;
 }
 
-.topnav a.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-/*dropdown menu*/
-.dropbtn
-{
-  border: none;
-  cloor: white;
-}
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f1f1f1;
+    background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -89,52 +75,123 @@ body {
     text-decoration: none;
     display: block;
 }
-.dropdown-content a:hover {background-color: #ddd;}
-.dropdown:hover .dropdown-content {display: block;}
-.dropdown:hover .dropbtn {background-color: #3e8e41;}
+.dropdown-content a:hover {background-color: #f1f1f1}
 
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+.topnav a.active {
+  background-color: #4CAF50;
+  color: white;
+}
 
 </style>
 </head>
 <body>
+
 <div class="topnav">
   <a class="active" onclick="location.href='open.html';" href="#open">Open</a>
   <!--<a class="active" href="#open">Open</a>-->
   <a href="#save">Save</a>
-  <!--<a href="#instrument">Add Instrument(s)</a>-->
-<div class="dropdown" >
-  <a href="#instrument" class="dropbtn">Add Instrument(s)</a>
-  <div class="dropdown-content">
-    <a href="#">Instrument 1</a>
-    <a href="#">Instrument 2</a>
-    <a href="#">Instrument 3</a>
-  </div>
-</div>
-
-  
-  
-  
-  
-  <a href="#track">Add track(s)</a>
+  <a href="#track">Add track</a>
   <a href="#playback">Playback</a>
   <a onclick="TogetherJS(this); return false;">Share(on/off)</a>
 </div>
+
+<!-- End of Top Menu formatting -->
+
+<div id="panel"> </div>
+
  <section>
     <type="text" id="notes" value="" />
   </section>
-<h1 style="padding-left:16px">Online Collabrate Music Editor</h1>
+<h1 style="padding-left:16px">Online Collaborative Music Editor</h1>
 
 
 <p style="padding-left:16px">Track 1</p>
-<div id="pitch" class="mydiv3"></div>
-<canvas id="myCanvas" class="mydiv2" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay()">
+<canvas id="myCanvas" width = "800" height= "200" class="mydiv2" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay()">
+	<div class="rectangle"></div>
 </canvas>
 
-<!-- End of Top Menu formatting -->
- 
- 
+<p style="display:inline-block;position:relative;padding-left:16px;top:210px;">Pitch:</p>
+<div id="pitch" class="mydiv3" style = "display:inline-block;position:relative;top:210px;left:16px;"></div>
+<div style = "position:relative;top:210px;left:16px;">
+	<span>Instrument: </span>
+	<select id="ddlViewBy" onChange="changeInst(this);">
+	</select>
+</div>
 <script src="soundfont-player.js"></script>
 <script>
+
+//change instrument to selected choice in drop-down
+function changeInst(e){
+	  var name = e.options[e.selectedIndex].text;
+	  console.log("Loading " + name + "...");
+	  inst = soundfont.instrument(name);
+	  console.log(inst);
+	  inst.onready(function() {
+		console.log("Instrument " + name + " ready.");
+	  });
+}
+
+//parse JSON file and add instruments to drop-down
+var xhr = new XMLHttpRequest();
+xhr.open("GET", "fluidR3.json");
+xhr.send();
+xhr.onreadystatechange = function () {
+	if (xhr.readyState !== 4) return;
+	if (xhr.status !== 200) return console.error("couldnt fetch instruments, defaulting to piano");
+
+	var section = document.getElementById("panel");
+
+	(JSON.parse(xhr.response) || []).sort().forEach(function (instrumentName) {
+		var e = document.getElementById("ddlViewBy");
+		var option = document.createElement("option");
+		option.text = instrumentName;
+		option.value = instrumentName;
+		option.selected = "selected";
+		e.appendChild(option);
+	});
+};
+
+
+var navopen = document.querySelector(".topnav a[href='#open']");
+var navsave = document.querySelector(".topnav a[href='#save']");
+var navtrack = document.querySelector(".topnav a[href='#track']");
+var navplayback = document.querySelector(".topnav a[href='#playback']");
+
+ navopen.addEventListener("click", function(e){
+	navopen.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navopen.setAttribute("class", "");}, 1000);
+});
+
+ navsave.addEventListener("click", function(e){
+	navsave.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navsave.setAttribute("class", "");}, 1000);
+});
+
+ navtrack.addEventListener("click", function(e){
+	navtrack.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navtrack.setAttribute("class", "");}, 1000);
+});
+
+ navplayback.addEventListener("click", function(e){
+	navplayback.setAttribute("class", "active");
+	//perform action
+	setTimeout(function() {navplayback.setAttribute("class", "");}, 1000);
+	
+});
+
  var ctx = new AudioContext();
  var soundfont = new Soundfont(ctx);
  var inst = soundfont.instrument('marimba');
@@ -149,23 +206,24 @@ container.addEventListener("click", getClickPosition, false);
 // When spot on track is clicked:
 function getClickPosition(e) {
     var time = ctx.currentTime + 0.1;
-  
-  var parentPosition = getPosition(e.currentTarget);
+	
+	var parentPosition = getPosition(e.currentTarget);
     // create music bar at cursor location
-  var curr = document.createElement("mydiv");
+	var curr = document.createElement("mydiv");
     curr.setAttribute("class", "mydiv");
     var xPosition = e.clientX - parentPosition.x - (curr.clientWidth / 2);
     var yPosition = e.clientY - parentPosition.y - (curr.clientHeight / 2) + 150;
 
-  // assign pitch based on y position and play note
-  var pitch = getPitch(yPosition);
-  inst.play(pitch,time);
+	// assign pitch based on y position and play note
+	var pitch = getPitch(yPosition);
+	inst.play(pitch,time, { duration: 0.5});
     
-  // add music bar to list and initialize
+	// add music bar to list and initialize
     var list = document.getElementsByClassName("mydiv2");
     document.body.appendChild(curr); 
+	console.log("x: ", xPosition, "y: ", yPosition);
     curr.style.left = xPosition + "px";
-    curr.style.top = yPosition + "px";
+    curr.style.top = snapY(yPosition) + "px";
     dragElement(curr);
 }
 
@@ -199,14 +257,14 @@ function getClickPosition(e) {
   }
 
 function dragElement(elmnt) {
-    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, dragnum = 0;
+  	var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, dragnum = 0, p=0;
     elmnt.onmousedown = dragMouseDown;
-  var oldpitch = getPitch(elmnt.offsetTop - pos2);
+	var oldpitch = getPitch(elmnt.offsetTop - pos2);
 
   function dragMouseDown(e) {
     e = e || window.event;
     e.preventDefault();
-  inst.play(oldpitch);
+	inst.play(oldpitch, ctx.currentTime, { duration: 0.5});
     // get the mouse cursor position at startup:
     pos3 = e.clientX;
     pos4 = e.clientY;
@@ -224,83 +282,123 @@ function dragElement(elmnt) {
     pos3 = e.clientX;
     pos4 = e.clientY;
     // set the element's new position:
-  if((elmnt.offsetTop - pos2) >=160 && (elmnt.offsetTop - pos2) <= 340)
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-  var newpitch = getPitch(elmnt.offsetTop - pos2);
-  if(oldpitch != newpitch){
-    inst.play(newpitch);
-    oldpitch = newpitch;
-  }
+	p = elmnt.offsetTop - pos2;
+	if((elmnt.offsetTop - pos2) >=150 && (elmnt.offsetTop - pos2) <= 350){
+		//pos4 = snapY((elmnt.offsetTop - pos2));
+		//elmnt.style.top = snapY(p) + "px";
+		elmnt.style.top = p + "px";
+		
+	}
+	var newpitch = getPitch(p);
+//	console.log("curr y: " + (elmnt.style.top));
+	if(oldpitch != newpitch){
+		inst.play(newpitch,ctx.currentTime, { duration: 0.5});
+		oldpitch = newpitch;
+	}
     dragnum = dragnum - pos1;
-    elmnt.style.width = dragnum + "px";
+//	console.log("dragnum: ", dragnum, ", left: ", elmnt.style.left);
+	if((dragnum + parseInt(elmnt.style.left,10)) < 818 && dragnum >=5)
+		elmnt.style.width = dragnum + "px";
   }
 
   function closeDragElement() {
     /* stop moving when mouse button is released:*/
+	elmnt.style.top = snapY(p) + "px";
+	console.log("Close y: " + elmnt.style.top);
     document.onmouseup = null;
     document.onmousemove = null;
   }
 }
 
 function getPitch(yPosition) {
-// Pitches: C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5
-  var pitch = "";
-  if (yPosition >=150 && yPosition < 165)
-    pitch = "C5";
-  if (yPosition >=165 && yPosition < 180)
-    pitch = "B4";
-  if (yPosition >=180 && yPosition < 195)
-    pitch = "A#4";
-  if (yPosition >=195 && yPosition < 210)
-    pitch = "A4";
-  if (yPosition >=210 && yPosition < 225)
-    pitch = "G#4";
-  if (yPosition >=225 && yPosition < 240)
-    pitch = "G4";
-  if (yPosition >=240 && yPosition < 255)
-    pitch = "F#4";
-  if (yPosition >=255 && yPosition < 270)
-    pitch = "F4";
-  if (yPosition >=270 && yPosition < 285)
-    pitch = "E4";
-  if (yPosition >=285 && yPosition < 300)
-    pitch = "D#4";
-  if (yPosition >=300 && yPosition < 315)
-    pitch = "D4";
-  if (yPosition >=315 && yPosition < 330)
-    pitch = "C#4";
-  if (yPosition >=330 && yPosition < 350)
-    pitch = "C4";
-  return pitch;
+// Pitches:	C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5
+	var pitch = "";
+	if (yPosition >=150 && yPosition < 165)
+		pitch = "C5";
+	if (yPosition >=165 && yPosition < 180)
+		pitch = "B4";
+	if (yPosition >=180 && yPosition < 195)
+		pitch = "A#4";
+	if (yPosition >=195 && yPosition < 210)
+		pitch = "A4";
+	if (yPosition >=210 && yPosition < 225)
+		pitch = "G#4";
+	if (yPosition >=225 && yPosition < 240)
+		pitch = "G4";
+	if (yPosition >=240 && yPosition < 255)
+		pitch = "F#4";
+	if (yPosition >=255 && yPosition < 270)
+		pitch = "F4";
+	if (yPosition >=270 && yPosition < 285)
+		pitch = "E4";
+	if (yPosition >=285 && yPosition < 300)
+		pitch = "D#4";
+	if (yPosition >=300 && yPosition < 315)
+		pitch = "D4";
+	if (yPosition >=315 && yPosition < 330)
+		pitch = "C#4";
+	if (yPosition >=330 && yPosition < 350)
+		pitch = "C4";
+	return pitch;
   }
-
+  
+  function snapY(yPosition) {
+// Pitches:	C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5
+	var pitch = "";
+	if (yPosition >=150 && yPosition < 165)
+		return 150 + 21.4275;
+	if (yPosition >=165 && yPosition < 180)
+		return 165 + 21.4275;
+	if (yPosition >=180 && yPosition < 195)
+		return 180 + 21.4275;
+	if (yPosition >=195 && yPosition < 210)
+		return 195 + 21.4275;
+	if (yPosition >=210 && yPosition < 225)
+		return 210 + 21.4275;
+	if (yPosition >=225 && yPosition < 240)
+		return 225 + 20.4275;
+	if (yPosition >=240 && yPosition < 255)
+		return 240 + 19.4275;
+	if (yPosition >=255 && yPosition < 270)
+		return 255 + 18.4275;
+	if (yPosition >=270 && yPosition < 285)
+		return 270 + 17.4275;
+	if (yPosition >=285 && yPosition < 300)
+		return 285 + 16.4275;
+	if (yPosition >=300 && yPosition < 315)
+		return 300 + 15.4275;
+	if (yPosition >=315 && yPosition < 330)
+		return 315 + 15.4275;
+	if (yPosition >=330 && yPosition < 350)
+		return 330 + 15.4275;
+  }
+  
   var printPitch = document.getElementById("pitch");
   
   var c = document.getElementById("myCanvas");
   var lines = c.getContext("2d");
   // lines.strokeStyle = "#FF0000";
-  for (i = 1; i < 12; i++)
+  for (i = 1; i < 7; i++)
   {
     lines.beginPath();
-    lines.moveTo(0, 12.1*i);  
-    lines.lineTo(300, 12.1*i);
+    lines.moveTo(0, 28.57*i);  
+    lines.lineTo(800, 28.57*i);
     lines.stroke();
   }
 
-
   function pitchDisplay(f) {
     var f = f.clientY;
-    var disp = getPitch(f);
+	//console.log("curr client y: " + (f + 25));
+    var disp = getPitch((f + 25));
     document.getElementById("pitch").innerHTML = disp;
   }
   function clearDisplay() {
     document.getElementById("pitch").innerHTML = "";
   }
-
+  
 </script>
-
 <div class="doc">
-  <div id="doc" class="doc__text-editor">Notes: (hint Control+b/bold, Control+i/Italic)</div>
+  <div id="doc" class="doc__text-editor">Notes:</div>
 </div>
 <script src="canvas.js"></script>
 </body>
