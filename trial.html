@@ -99,7 +99,7 @@ body {
 <div class="topnav">
   <a class="active" onclick="location.href='open.html';" href="#open">Open</a>
   <!--<a class="active" href="#open">Open</a>-->
-  <a href="#save">Save</a>
+  <a id="save" href="#save">Save</a>
   <a href="#track">Add track</a>
   <a href="#playback">Playback</a>
   <a onclick="TogetherJS(this); return false;">Share(on/off)</a>
@@ -196,10 +196,15 @@ var navplayback = document.querySelector(".topnav a[href='#playback']");
  var ctx = new AudioContext();
  var soundfont = new Soundfont(ctx);
  var inst = soundfont.instrument('marimba');
+ var s = document.getElementById("save");
+
  // Used for testing; ignore
  // var notesField = document.getElementById("notes");
  // notesField.value = "C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5 B4 Bb4 A4 Ab4 G4 Gb4 F4 E4 Eb4 D4 Db4 C4";
 
+//Store pos clicked into array
+var pSave = [];
+ 
  // create track
 var container = document.querySelector(".mydiv2");
 container.addEventListener("click", getClickPosition, false);
@@ -215,6 +220,16 @@ function getClickPosition(e) {
     var xPosition = e.clientX - parentPosition.x - (curr.clientWidth / 2);
     var yPosition = e.clientY - parentPosition.y - (curr.clientHeight / 2) + 150;
 
+    //Save the positions into a file
+    pSave.push("x: " + xPosition + " " + "y: " + yPosition);
+    //console.log(pSave); 
+    
+    s.onclick = function() {
+    //clicking save btn will save pos into a txt file 
+        var blob = new Blob([pSave], {type: "text/plain;charset=utf-8"});
+        saveAs(blob, "save.txt");
+    } 
+    
 	// assign pitch based on y position and play note
 	var pitch = getPitch(yPosition);
 	inst.play(pitch,time, { duration: 0.5});
@@ -413,10 +428,10 @@ function getPitch(yPosition) {
 
   function pitchDisplay(f) {
     var f = f.clientY;
-	console.log("curr client y: " + (f-13));
+	//console.log("curr client y: " + (f-13));
 	f-=13;
     var disp = getPitch(f);
-	console.log("disp: " + disp);
+	//console.log("disp: " + disp);
 	if(disp != undefined)
 		document.getElementById("pitch").innerHTML = disp;
   }
@@ -429,5 +444,6 @@ function getPitch(yPosition) {
   <div id="doc" class="doc__text-editor">Notes:</div>
 </div>
 <script src="canvas.js"></script>
+<script src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.js" ></script>
 </body>
 </html>
