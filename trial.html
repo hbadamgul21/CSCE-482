@@ -133,11 +133,11 @@ body {
 //change instrument to selected choice in drop-down
 function changeInst(e){
 	  var name = e.options[e.selectedIndex].text;
-	  console.log("Loading " + name + "...");
+	  //console.log("Loading " + name + "...");
 	  inst = soundfont.instrument(name);
-	  console.log(inst);
+	  //console.log(inst);
 	  inst.onready(function() {
-		console.log("Instrument " + name + " ready.");
+		//console.log("Instrument " + name + " ready.");
 	  });
 }
 
@@ -188,6 +188,7 @@ var navplayback = document.querySelector(".topnav a[href='#playback']");
  navplayback.addEventListener("click", function(e){
 	navplayback.setAttribute("class", "active");
 	//perform action
+	genPlayback(e);
 	setTimeout(function() {navplayback.setAttribute("class", "");}, 1000);
 	
 });
@@ -221,9 +222,10 @@ function getClickPosition(e) {
 	// add music bar to list and initialize
     var list = document.getElementsByClassName("mydiv2");
     document.body.appendChild(curr); 
-	console.log("x: ", xPosition, "y: ", yPosition);
+	//console.log("x: ", xPosition, "y: ", yPosition);
     curr.style.left = xPosition + "px";
     curr.style.top = snapY(yPosition) + "px";
+    curr.style.width = "100px";
     dragElement(curr);
 }
 
@@ -259,7 +261,7 @@ function getClickPosition(e) {
 function dragElement(elmnt) {
   	var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0, dragnum = 0, p=0;
     elmnt.onmousedown = dragMouseDown;
-	var oldpitch = getPitch(elmnt.offsetTop - pos2);
+	var oldpitch = getPitch(parseFloat(elmnt.style.top));
 
   function dragMouseDown(e) {
     e = e || window.event;
@@ -290,21 +292,21 @@ function dragElement(elmnt) {
 		
 	}
 	var newpitch = getPitch(p);
-//	console.log("curr y: " + (elmnt.style.top));
+//	//console.log("curr y: " + (elmnt.style.top));
 	if(oldpitch != newpitch){
 		inst.play(newpitch,ctx.currentTime, { duration: 0.5});
 		oldpitch = newpitch;
 	}
     dragnum = dragnum - pos1;
-//	console.log("dragnum: ", dragnum, ", left: ", elmnt.style.left);
-	if((dragnum + parseInt(elmnt.style.left,10)) < 818 && dragnum >=5)
+//	//console.log("dragnum: ", dragnum, ", left: ", elmnt.style.left);
+	if((dragnum + parseFloat(elmnt.style.left,10)) < 818 && dragnum >=5)
 		elmnt.style.width = dragnum + "px";
   }
 
   function closeDragElement() {
     /* stop moving when mouse button is released:*/
 	elmnt.style.top = snapY(p) + "px";
-	console.log("Close y: " + elmnt.style.top);
+	//console.log("Close y: " + elmnt.style.top);
     document.onmouseup = null;
     document.onmousemove = null;
   }
@@ -312,34 +314,35 @@ function dragElement(elmnt) {
 
 function getPitch(yPosition) {
 // Pitches:	C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5
-	var pitch = "";
-	if (yPosition >=150 && yPosition < 165)
-		pitch = "C5";
-	if (yPosition >=165 && yPosition < 180)
-		pitch = "B4";
-	if (yPosition >=180 && yPosition < 195)
-		pitch = "A#4";
-	if (yPosition >=195 && yPosition < 210)
-		pitch = "A4";
-	if (yPosition >=210 && yPosition < 225)
-		pitch = "G#4";
-	if (yPosition >=225 && yPosition < 240)
-		pitch = "G4";
-	if (yPosition >=240 && yPosition < 255)
-		pitch = "F#4";
-	if (yPosition >=255 && yPosition < 270)
-		pitch = "F4";
-	if (yPosition >=270 && yPosition < 285)
-		pitch = "E4";
-	if (yPosition >=285 && yPosition < 300)
-		pitch = "D#4";
-	if (yPosition >=300 && yPosition < 315)
-		pitch = "D4";
-	if (yPosition >=315 && yPosition < 330)
-		pitch = "C#4";
-	if (yPosition >=330 && yPosition < 350)
-		pitch = "C4";
-	return pitch;
+	//var pitch = "";
+	//console.log("yposition: " + yPosition);
+	if (yPosition == 171.428 || (yPosition >=150 && yPosition < 165))
+		return "C5";
+	if (yPosition == 186.428 || (yPosition >=165 && yPosition < 180))
+		return "B4";
+	if (yPosition == 201.428 || (yPosition >=180 && yPosition < 195))
+		return "A#4";
+	if (yPosition == 216.428 || (yPosition >=195 && yPosition < 210))
+		return "A4";
+	if (yPosition == 231.428 || (yPosition >=210 && yPosition < 225))
+		return "G#4";
+	if (yPosition == 245.428 || (yPosition >=225 && yPosition < 240))
+		return "G4";
+	if (yPosition == 259.428 || (yPosition >=240 && yPosition < 255))
+		return "F#4";
+	if (yPosition == 273.428 || (yPosition >=255 && yPosition < 270))
+		return "F4";
+	if (yPosition == 287.428 || (yPosition >=270 && yPosition < 285))
+		return "E4";
+	if (yPosition == 301.428 || (yPosition >=285 && yPosition < 300))
+		return "D#4";
+	if (yPosition == 315.428 || (yPosition >=300 && yPosition < 315))
+		return "D4";
+	if (yPosition == 330.428 || (yPosition >=315 && yPosition < 330))
+		return "C#4";
+	if (yPosition == 345.428 || (yPosition >=330 && yPosition < 350))
+		return "C4";
+//	return pitch;
   }
   
   function snapY(yPosition) {
@@ -373,6 +376,28 @@ function getPitch(yPosition) {
 		return 330 + 15.4275;
   }
   
+  function genPlayback(e){
+	var list = document.getElementsByClassName("mydiv");
+	var x;
+	for(x=0; x<list.length;x++){
+		var pitch = getPitch(parseFloat(list[x].style.top));
+		var xStart = parseFloat(list[x].style.left);
+		var xEnd = xStart + parseFloat(list[x].style.width);
+		var dur = parseFloat(list[x].style.width);
+		//console.log("duration: " + dur);
+		//console.log("xStart: " + xStart);
+		//console.log("xEnd: " + xEnd);
+		inst.play(pitch, ctx.currentTime + (xStart/100), {duration: (dur/100)})
+		changeColor(list[x],xStart, dur);
+		//setTimeout(changeColor(list[x]), colorDur);
+	}
+  }
+  
+  function changeColor(e, start, dur){
+	setTimeout(function(){e.style.backgroundColor = "#d3d3d3";}, start*10); 
+	setTimeout(function(){e.style.backgroundColor = "#2196F3";},(start*10)+(dur*10));
+  }
+  
   var printPitch = document.getElementById("pitch");
   
   var c = document.getElementById("myCanvas");
@@ -388,9 +413,12 @@ function getPitch(yPosition) {
 
   function pitchDisplay(f) {
     var f = f.clientY;
-	//console.log("curr client y: " + (f + 25));
-    var disp = getPitch((f + 25));
-    document.getElementById("pitch").innerHTML = disp;
+	console.log("curr client y: " + (f-13));
+	f-=13;
+    var disp = getPitch(f);
+	console.log("disp: " + disp);
+	if(disp != undefined)
+		document.getElementById("pitch").innerHTML = disp;
   }
   function clearDisplay() {
     document.getElementById("pitch").innerHTML = "";
