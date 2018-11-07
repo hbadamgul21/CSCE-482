@@ -97,7 +97,10 @@ body {
 <body>
 
 <div class="topnav">
-  <a class="active" onclick="location.href='open.html';" href="#open">Open</a>
+ <a href="#open">Open
+ <input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 10%; height:10%;" multiple onchange="startRead()"/>
+ </a> 
+ <!-- <a class="active" onclick="location.href='open.html';" href="#open">Open</a> -->
   <!--<a class="active" href="#open">Open</a>-->
   <a id="save" href="#save">Save</a>
   <a href="#track">Add track</a>
@@ -113,7 +116,7 @@ body {
     <type="text" id="notes" value="" />
   </section>
 <h1 style="padding-left:16px">Online Collaborative Music Editor</h1>
-
+<h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>
 
 <p style="padding-left:16px">Track 1</p>
 <canvas id="myCanvas" width = "800" height= "200" class="mydiv2" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay()">
@@ -130,17 +133,119 @@ body {
 <script src="soundfont-player.js"></script>
 <script>
 
+//Store pos clicked into array
+var pSave = [];
+
+//// SAVE ////
+function genSave(e){
+	var list = document.getElementsByClassName("mydiv");
+	var x;
+	for(x=0; x<list.length;x++){
+		var yPos = parseFloat(list[x].style.top);
+		var xPos = parseFloat(list[x].style.left);
+		var width = parseFloat(list[x].style.width);
+		  //Save the positions into a file
+		pSave.push("x" + xPos + "x y" + yPos + "y w" + width + "w");       
+	 }
+	 var blob = new Blob([pSave], {type: "text/plain;charset=utf-8"});
+	 var filename = document.getElementById("score").innerHTML + ".omus";
+	 saveAs(blob, filename);
+}
+
+//// OPEN ////
+function startRead()
+{
+  // obtain input element through DOM 
+  var file = document.getElementById('file').files[0];
+  if(file){
+    getAsText(file);
+  }
+}
+
+function getAsText(readFile)
+{
+	var reader;
+	try{
+		reader = new FileReader();
+	}
+	catch(e){
+		document.getElementById('output').innerHTML = 
+			"Error: seems File API is not supported on your browser";
+	  return;
+	}
+  
+	// Read file into memory as UTF-8      
+	reader.readAsText(readFile, "UTF-8");
+	reader.onload = loaded;
+}
+
+function loaded(evt)
+{
+	// Obtain the read file data    
+	var fileString = evt.target.result;
+	console.log("file opened: " + fileString);
+	var list = document.getElementsByClassName("mydiv");
+	var i = 0;
+	var stringx="", stringy="", stringw="";
+	while (i < fileString.length){
+	//	console.log("string[" + i + "]: " + fileString.charAt(i));
+		if(fileString.charAt(i) == 'x'){
+			i++;
+			while(i < fileString.length && fileString.charAt(i) != 'x'){
+				stringx += fileString.charAt(i);
+				i++;
+			}
+			i++;
+		//	console.log("string[" + i + "]: " + fileString.charAt(i));
+			stringx += "px";
+		}
+		if(fileString.charAt(i) == 'y'){
+			i++;
+			while(i < fileString.length && fileString.charAt(i) != 'y'){
+				stringy += fileString.charAt(i);
+				i++;
+			}
+			i++;
+			stringy+="px";
+		}
+		if(fileString.charAt(i) == 'w'){
+			i++;
+			while(i < fileString.length && fileString.charAt(i) != 'w'){
+				stringw += fileString.charAt(i);
+				i++;
+			}
+			i++;
+			stringw+="px";
+			
+		}
+		if(fileString.charAt(i) == ' ' || fileString.charAt(i) == ',')
+			i++;
+		if(stringx != "" && stringy != "" && stringw != ""){
+			// add music bar to list and initialize
+			var curr = document.createElement("mydiv");
+			curr.setAttribute("class", "mydiv");
+			document.body.appendChild(curr); 
+			curr.style.left = stringx;
+			curr.style.top = stringy;
+			curr.style.width = stringw;
+			dragElement(curr);
+			stringx = "";
+			stringy = "";
+			stringw = "";
+		}
+	}
+}
+
+//// INSTRUMENT SELECT ////
 //change instrument to selected choice in drop-down
 function changeInst(e){
 	  var name = e.options[e.selectedIndex].text;
-	  //console.log("Loading " + name + "...");
 	  inst = soundfont.instrument(name);
-	  //console.log(inst);
 	  inst.onready(function() {
-		//console.log("Instrument " + name + " ready.");
 	  });
 }
 
+//// INSTRUMENT LIST GENERATION ////
 //parse JSON file and add instruments to drop-down
 var xhr = new XMLHttpRequest();
 xhr.open("GET", "fluidR3.json");
@@ -161,7 +266,7 @@ xhr.onreadystatechange = function () {
 	});
 };
 
-
+//// TOP MENU EVENT LISTENERS ////
 var navopen = document.querySelector(".topnav a[href='#open']");
 var navsave = document.querySelector(".topnav a[href='#save']");
 var navtrack = document.querySelector(".topnav a[href='#track']");
@@ -176,6 +281,7 @@ var navplayback = document.querySelector(".topnav a[href='#playback']");
  navsave.addEventListener("click", function(e){
 	navsave.setAttribute("class", "active");
 	//perform action
+	genSave(e);
 	setTimeout(function() {navsave.setAttribute("class", "");}, 1000);
 });
 
@@ -193,22 +299,18 @@ var navplayback = document.querySelector(".topnav a[href='#playback']");
 	
 });
 
+
+//// SOUND INITIALIZATION ////
  var ctx = new AudioContext();
  var soundfont = new Soundfont(ctx);
  var inst = soundfont.instrument('marimba');
- var s = document.getElementById("save");
 
- // Used for testing; ignore
- // var notesField = document.getElementById("notes");
- // notesField.value = "C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5 B4 Bb4 A4 Ab4 G4 Gb4 F4 E4 Eb4 D4 Db4 C4";
-
-//Store pos clicked into array
-var pSave = [];
- 
  // create track
 var container = document.querySelector(".mydiv2");
 container.addEventListener("click", getClickPosition, false);
+console.log("Track offset: " + container.offsetTop);
 
+//// CREATE NOTE ////
 // When spot on track is clicked:
 function getClickPosition(e) {
     var time = ctx.currentTime + 0.1;
@@ -218,17 +320,7 @@ function getClickPosition(e) {
 	var curr = document.createElement("mydiv");
     curr.setAttribute("class", "mydiv");
     var xPosition = e.clientX - parentPosition.x - (curr.clientWidth / 2);
-    var yPosition = e.clientY - parentPosition.y - (curr.clientHeight / 2) + 150;
-
-    //Save the positions into a file
-    pSave.push("x: " + xPosition + " " + "y: " + yPosition);
-    //console.log(pSave); 
-    
-    s.onclick = function() {
-    //clicking save btn will save pos into a txt file 
-        var blob = new Blob([pSave], {type: "text/plain;charset=utf-8"});
-        saveAs(blob, "save.txt");
-    } 
+    var yPosition = e.clientY - parentPosition.y - (curr.clientHeight / 2) + (container.offsetTop - 10);
     
 	// assign pitch based on y position and play note
 	var pitch = getPitch(yPosition);
@@ -237,7 +329,6 @@ function getClickPosition(e) {
 	// add music bar to list and initialize
     var list = document.getElementsByClassName("mydiv2");
     document.body.appendChild(curr); 
-	//console.log("x: ", xPosition, "y: ", yPosition);
     curr.style.left = xPosition + "px";
     curr.style.top = snapY(yPosition) + "px";
     curr.style.width = "100px";
@@ -298,30 +389,28 @@ function dragElement(elmnt) {
     pos2 = pos4 - e.clientY;
     pos3 = e.clientX;
     pos4 = e.clientY;
-    // set the element's new position:
+    
+	// set the element's new position:
 	p = elmnt.offsetTop - pos2;
-	if((elmnt.offsetTop - pos2) >=150 && (elmnt.offsetTop - pos2) <= 350){
-		//pos4 = snapY((elmnt.offsetTop - pos2));
-		//elmnt.style.top = snapY(p) + "px";
+	
+	if((elmnt.offsetTop - pos2) >(container.offsetTop) && (elmnt.offsetTop - pos2) < (container.offsetTop + 190)){
 		elmnt.style.top = p + "px";
-		
 	}
+	
 	var newpitch = getPitch(p);
-//	//console.log("curr y: " + (elmnt.style.top));
 	if(oldpitch != newpitch){
 		inst.play(newpitch,ctx.currentTime, { duration: 0.5});
 		oldpitch = newpitch;
 	}
     dragnum = dragnum - pos1;
-//	//console.log("dragnum: ", dragnum, ", left: ", elmnt.style.left);
 	if((dragnum + parseFloat(elmnt.style.left,10)) < 818 && dragnum >=5)
 		elmnt.style.width = dragnum + "px";
   }
 
   function closeDragElement() {
     /* stop moving when mouse button is released:*/
-	elmnt.style.top = snapY(p) + "px";
-	//console.log("Close y: " + elmnt.style.top);
+	if((elmnt.offsetTop - pos2) >(container.offsetTop) && (elmnt.offsetTop - pos2) < (container.offsetTop + 190))
+		elmnt.style.top = snapY(p) + "px";
     document.onmouseup = null;
     document.onmousemove = null;
   }
@@ -329,66 +418,61 @@ function dragElement(elmnt) {
 
 function getPitch(yPosition) {
 // Pitches:	C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5
-	//var pitch = "";
-	//console.log("yposition: " + yPosition);
-	if (yPosition == 171.428 || (yPosition >=150 && yPosition < 165))
+	if (yPosition == (container.offsetTop - 10) + 21.428 || (yPosition >=(container.offsetTop - 10) && yPosition < (container.offsetTop - 10) + (15*1)))
 		return "C5";
-	if (yPosition == 186.428 || (yPosition >=165 && yPosition < 180))
+	if (yPosition == (container.offsetTop - 10) + (15*1) + 21.428 || (yPosition >=(container.offsetTop - 10) + (15*1) && yPosition < (container.offsetTop - 10) + (15*2)))
 		return "B4";
-	if (yPosition == 201.428 || (yPosition >=180 && yPosition < 195))
+	if (yPosition == (container.offsetTop - 10) + (15*2) + 21.428 || (yPosition >=(container.offsetTop - 10) + (15*2) && yPosition < (container.offsetTop - 10) + (15*3)))
 		return "A#4";
-	if (yPosition == 216.428 || (yPosition >=195 && yPosition < 210))
+	if (yPosition == (container.offsetTop - 10) + (15*3) + 21.428 || (yPosition >=(container.offsetTop - 10) + (15*3) && yPosition < (container.offsetTop - 10) + (15*4)))
 		return "A4";
-	if (yPosition == 231.428 || (yPosition >=210 && yPosition < 225))
+	if (yPosition == (container.offsetTop - 10) + (15*4) + 21.428 || (yPosition >=(container.offsetTop - 10) + (15*4) && yPosition < (container.offsetTop - 10) + (15*5)))
 		return "G#4";
-	if (yPosition == 245.428 || (yPosition >=225 && yPosition < 240))
+	if (yPosition == (container.offsetTop - 10) + (15*5) + 20.428 || (yPosition >=(container.offsetTop - 10) + (15*5) && yPosition < (container.offsetTop - 10) + (15*6)))
 		return "G4";
-	if (yPosition == 259.428 || (yPosition >=240 && yPosition < 255))
+	if (yPosition == (container.offsetTop - 10) + (15*6) + 19.428 || (yPosition >=(container.offsetTop - 10) + (15*6) && yPosition < (container.offsetTop - 10) + (15*7)))
 		return "F#4";
-	if (yPosition == 273.428 || (yPosition >=255 && yPosition < 270))
+	if (yPosition == (container.offsetTop - 10) + (15*7) + 18.428 || (yPosition >=(container.offsetTop - 10) + (15*7) && yPosition < (container.offsetTop - 10) + (15*8)))
 		return "F4";
-	if (yPosition == 287.428 || (yPosition >=270 && yPosition < 285))
+	if (yPosition == (container.offsetTop - 10) + (15*8) + 17.428 || (yPosition >=(container.offsetTop - 10) + (15*8) && yPosition < (container.offsetTop - 10) + (15*9)))
 		return "E4";
-	if (yPosition == 301.428 || (yPosition >=285 && yPosition < 300))
+	if (yPosition == (container.offsetTop - 10) + (15*9) + 16.428 || (yPosition >=(container.offsetTop - 10) + (15*9) && yPosition < (container.offsetTop - 10) + (15*10)))
 		return "D#4";
-	if (yPosition == 315.428 || (yPosition >=300 && yPosition < 315))
+	if (yPosition == (container.offsetTop - 10) + (15*10) + 15.428 || (yPosition >=(container.offsetTop - 10) + (15*10) && yPosition < (container.offsetTop - 10) + (15*11)))
 		return "D4";
-	if (yPosition == 330.428 || (yPosition >=315 && yPosition < 330))
+	if (yPosition == (container.offsetTop - 10) + (15*11) + 15.428 || (yPosition >=(container.offsetTop - 10) + (15*11) && yPosition < (container.offsetTop - 10) + (15*12)))
 		return "C#4";
-	if (yPosition == 345.428 || (yPosition >=330 && yPosition < 350))
+	if (yPosition == (container.offsetTop - 10) + (15*12) + 15.428 || (yPosition >=(container.offsetTop - 10) + (15*12) && yPosition <= (container.offsetTop - 10) + (15*13)+5))
 		return "C4";
-//	return pitch;
   }
   
   function snapY(yPosition) {
-// Pitches:	C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5
-	var pitch = "";
-	if (yPosition >=150 && yPosition < 165)
-		return 150 + 21.4275;
-	if (yPosition >=165 && yPosition < 180)
-		return 165 + 21.4275;
-	if (yPosition >=180 && yPosition < 195)
-		return 180 + 21.4275;
-	if (yPosition >=195 && yPosition < 210)
-		return 195 + 21.4275;
-	if (yPosition >=210 && yPosition < 225)
-		return 210 + 21.4275;
-	if (yPosition >=225 && yPosition < 240)
-		return 225 + 20.4275;
-	if (yPosition >=240 && yPosition < 255)
-		return 240 + 19.4275;
-	if (yPosition >=255 && yPosition < 270)
-		return 255 + 18.4275;
-	if (yPosition >=270 && yPosition < 285)
-		return 270 + 17.4275;
-	if (yPosition >=285 && yPosition < 300)
-		return 285 + 16.4275;
-	if (yPosition >=300 && yPosition < 315)
-		return 300 + 15.4275;
-	if (yPosition >=315 && yPosition < 330)
-		return 315 + 15.4275;
-	if (yPosition >=330 && yPosition < 350)
-		return 330 + 15.4275;
+	if (yPosition >=(container.offsetTop - 10) && yPosition < (container.offsetTop - 10) + (15*1))
+		return (container.offsetTop - 10) + 21.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*1) && yPosition < (container.offsetTop - 10) + (15*2))
+		return (container.offsetTop - 10) + (15*1) + 21.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*2) && yPosition < (container.offsetTop - 10) + (15*3))
+		return (container.offsetTop - 10) + (15*2) + 21.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*3) && yPosition < (container.offsetTop - 10) + (15*4))
+		return (container.offsetTop - 10) + (15*3) + 21.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*4) && yPosition < (container.offsetTop - 10) + (15*5))
+		return (container.offsetTop - 10) + (15*4) + 21.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*5) && yPosition < (container.offsetTop - 10) + (15*6))
+		return (container.offsetTop - 10) + (15*5) + 20.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*6) && yPosition < (container.offsetTop - 10) + (15*7))
+		return (container.offsetTop - 10) + (15*6) + 19.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*7) && yPosition < (container.offsetTop - 10) + (15*8))
+		return (container.offsetTop - 10) + (15*7) + 18.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*8) && yPosition < (container.offsetTop - 10) + (15*9))
+		return (container.offsetTop - 10) + (15*8) + 17.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*9) && yPosition < (container.offsetTop - 10) + (15*10))
+		return (container.offsetTop - 10) + (15*9) + 16.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*10)&& yPosition < (container.offsetTop - 10) + (15*11))
+		return (container.offsetTop - 10) + (15*10) + 15.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*11) && yPosition < (container.offsetTop - 10) + (15*12))
+		return (container.offsetTop - 10) + (15*11) + 15.4275;
+	if (yPosition >=(container.offsetTop - 10) + (15*12) && yPosition <= (container.offsetTop - 10) + (15*13)+5)
+		return (container.offsetTop - 10) + (15*12) + 15.4275;
   }
   
   function genPlayback(e){
@@ -399,12 +483,9 @@ function getPitch(yPosition) {
 		var xStart = parseFloat(list[x].style.left);
 		var xEnd = xStart + parseFloat(list[x].style.width);
 		var dur = parseFloat(list[x].style.width);
-		//console.log("duration: " + dur);
-		//console.log("xStart: " + xStart);
-		//console.log("xEnd: " + xEnd);
+
 		inst.play(pitch, ctx.currentTime + (xStart/100), {duration: (dur/100)})
 		changeColor(list[x],xStart, dur);
-		//setTimeout(changeColor(list[x]), colorDur);
 	}
   }
   
@@ -417,7 +498,6 @@ function getPitch(yPosition) {
   
   var c = document.getElementById("myCanvas");
   var lines = c.getContext("2d");
-  // lines.strokeStyle = "#FF0000";
   for (i = 1; i < 7; i++)
   {
     lines.beginPath();
@@ -427,11 +507,11 @@ function getPitch(yPosition) {
   }
 
   function pitchDisplay(f) {
-    var f = f.clientY;
-	//console.log("curr client y: " + (f-13));
-	f-=13;
-    var disp = getPitch(f);
-	//console.log("disp: " + disp);
+	var parentPosition = getPosition(f.currentTarget);
+    var yPosition = f.clientY - parentPosition.y + (container.offsetTop - 10);
+    
+	console.log(yPosition);
+    var disp = getPitch(yPosition);
 	if(disp != undefined)
 		document.getElementById("pitch").innerHTML = disp;
   }
