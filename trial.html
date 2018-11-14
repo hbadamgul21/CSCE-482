@@ -21,8 +21,8 @@
 /* Track box */
 .mydiv2 {
     position: absolute;
-    left: 16px;
-    width: 800px;
+    left: 5%;
+    width: 90%;
     height: 200px; 
  /*   border: 1px solid #d3d3d3; */
 	overflow-x: scroll;
@@ -122,28 +122,31 @@ body {
 <h1 style="padding-left:16px">Online Collaborative Music Editor</h1>
 <h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>
 
-<!-- TRACK -->
-<div id="track1" style= "position:relative; height: 275px;">
-	<p style="padding-left:16px">Track 1</p>
-	<div id="myCanvasContainer1" width = "800" height= "200" class="mydiv2">
-		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay()"></canvas>
+<!-- TRACK 1-->
+<div id="track1" style= "position:relative; height: 300px;">
+	<p style="padding-left:5%">Track 1</p>
+	<div id="myCanvasContainer1" class="mydiv2" style = "height: 210px;">
+		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>
 	</div>
 
+	<!-- PITCH -->
+	<p style="display:inline-block;position:relative;padding-left:5%;top:210px;">Pitch:</p>
+	<div id="pitch1" class="mydiv3" style = "display:inline-block;position:relative;top:210px;"></div>
 	<!-- INSTRUMENT SELECT -->
-	<p style="display:inline-block;position:relative;padding-left:16px;top:210px;">Pitch:</p>
-	<div id="pitch1" class="mydiv3" style = "display:inline-block;position:relative;top:210px;left:16px;"></div>
-	<div style = "display:inline-block; position:relative;top:210px;left:16px;">
+	<div style = "display:inline-block; position:relative;top:210px;">
 		<span>Instrument: </span>
 		<select id="ddlViewBy1" onChange="changeInst(this);"> </select>
 	</div>
 </div>
-<div id="track2" style= "position:relative; height: 275px;"></div>
-<div id="track3" style= "position:relative; height: 275px;"></div>
-<div id="track4" style= "position:relative; height: 275px;"></div>
-<div id="track5" style= "position:relative; height: 275px;"></div>
-<div id="track6" style= "position:relative; height: 275px;"></div>
-<div id="track7" style= "position:relative; height: 275px;"></div>
-<div id="track8" style= "position:relative; height: 275px;"></div>
+
+<!-- TRACK 2-8 PLACHOLDERS -->
+<div id="track2" style= "position:relative; height: 300px;"></div>
+<div id="track3" style= "position:relative; height: 300px;"></div>
+<div id="track4" style= "position:relative; height: 300px;"></div>
+<div id="track5" style= "position:relative; height: 300px;"></div>
+<div id="track6" style= "position:relative; height: 300px;"></div>
+<div id="track7" style= "position:relative; height: 300px;"></div>
+<div id="track8" style= "position:relative; height: 300px;"></div>
 
 <script src="soundfont-player.js"></script>
 <script>
@@ -152,6 +155,14 @@ body {
 var pSave = [];
 var inst = [];
 var track = 1;
+
+var width = window.innerWidth
+|| document.documentElement.clientWidth
+|| document.body.clientWidth;
+
+var height = window.innerHeight
+|| document.documentElement.clientHeight
+|| document.body.clientHeight;
 
 //// SAVE ////
 function genSave(e){
@@ -305,13 +316,13 @@ function add_fields()
 	if (track<=8)
 	{
 		var objTo = document.getElementById('track' + track);
-		objTo.innerHTML = '<p>&nbsp;</p><p style = "padding-left: 16px;">Track ' + track + '</p>' +
-		'<div id="myCanvasContainer' + track + '" width = "800" height= "200" class="mydiv2">' + 
-			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay()></canvas>' + 
+		objTo.innerHTML = '<p style = "padding-left: 5%;">Track ' + track + '</p>' +
+		'<div id="myCanvasContainer' + track + '" style = "height: 210px;" class="mydiv2">' + 
+			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>' + 
 		'</div>' + 
-		'<div style = "display:inline-block; position: relative; top:210px;padding-left:16px;"><p>Pitch:</p></div>' + 
-		'<div id="pitch' + track + '" class="mydiv3" style = "display:inline-block;position:relative;top:210px;left:16px;"></div>' + 
-		'<div style = "display: inline-block; position:relative;top:210px;left:16px;">'+ 
+		'<p style = "display:inline-block; position: relative; top:210px;padding-left:5%;">Pitch:</p>' + 
+		'<div id="pitch' + track + '" class="mydiv3" style = "display:inline-block;position:relative;top:210px;"></div>' + 
+		'<div style = "display: inline-block; position:relative;top:210px;">'+ 
 			'<span>Instrument: </span>' + 
 			'<select id="ddlViewBy' + track + '" onChange="changeInst(this);"></select>' + 
 		'</div>';
@@ -383,8 +394,9 @@ var navplayback = document.querySelector(".topnav a[href='#playback']");
 
  // create track
 var initcontainer = document.getElementById("myCanvas1");
+document.getElementById("myCanvasContainer1").width = width + "px";
 initcontainer.addEventListener("click", getClickPosition, false);
-console.log("Track offset: " + initcontainer.offsetTop);
+console.log("width: " + width);
 
 //// CREATE NOTE ////
 // When spot on track is clicked:
@@ -614,16 +626,47 @@ function getPitch(yPosition) {
   }
 
   function pitchDisplay(f) {
+  
+	var index = 1;
+	if(f.target.id== "myCanvas2")
+		index = 2;
+	if(f.target.id== "myCanvas3")
+		index = 3;
+	if(f.target.id== "myCanvas4")
+		index = 4;
+	if(f.target.id== "myCanvas5")
+		index = 5;
+	if(f.target.id== "myCanvas6")
+		index = 6;
+	if(f.target.id== "myCanvas7")
+		index = 7;
+	if(f.target.id== "myCanvas8")
+		index = 8;
+	console.log(f.target.id);
 	var parentPosition = getPosition(f.currentTarget);
     var yPosition = f.clientY - parentPosition.y - 10;
     
-//	console.log(yPosition);
     var disp = getPitch(yPosition);
 	if(disp != undefined)
-		document.getElementById("pitch1").innerHTML = disp;
+		document.getElementById("pitch" + index).innerHTML = disp;
   }
-  function clearDisplay() {
-    document.getElementById("pitch1").innerHTML = "";
+  function clearDisplay(f) {
+	var index = 1;
+	if(f.target.id== "myCanvas2")
+		index = 2;
+	if(f.target.id== "myCanvas3")
+		index = 3;
+	if(f.target.id== "myCanvas4")
+		index = 4;
+	if(f.target.id== "myCanvas5")
+		index = 5;
+	if(f.target.id== "myCanvas6")
+		index = 6;
+	if(f.target.id== "myCanvas7")
+		index = 7;
+	if(f.target.id== "myCanvas8")
+		index = 8;
+    document.getElementById("pitch" + index).innerHTML = "";
   }
   
 </script>
