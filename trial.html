@@ -165,7 +165,7 @@ body {
 
 <!-- TITLE -->
 <h1 style="padding-left:16px">Online Collaborative Music Editor</h1>
-<!--<h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>-->
+<h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>
 
 <div class="tooltip">Music Note Hint
   <span class="tooltiptext">
@@ -303,7 +303,8 @@ function loaded(evt)
 			// add music bar to list and initialize
 			var curr = document.createElement("mydiv");
 			curr.setAttribute("class", "mydiv");
-			document.body.appendChild(curr); 
+			//document.body.appendChild(curr); 
+            document.getElementById("myCanvasContainer" + track).appendChild(curr);
 			curr.style.left = stringx;
 			curr.style.top = stringy;
 			curr.style.width = stringw;
