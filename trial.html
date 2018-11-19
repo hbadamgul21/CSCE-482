@@ -124,6 +124,29 @@ body {
   color: white;
 }
 
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 100px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
 </style>
 </head>
 <body>
@@ -142,7 +165,13 @@ body {
 
 <!-- TITLE -->
 <h1 style="padding-left:16px">Online Collaborative Music Editor</h1>
-<h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>
+<!--<h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>-->
+
+<div class="tooltip">Music Note Hint
+  <span class="tooltiptext">
+      <img src="insert.jpg" alt="hint">
+  </span>
+</div>
 
 <!-- TRACK 1-->
 <div id="track1" style= "position:relative; height: 300px;">
