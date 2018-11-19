@@ -153,7 +153,7 @@ body {
 
 <div class="topnav">
  <a href="#open">Open
-	<input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 10%; height:10%;" multiple onchange="startRead()"/>
+	<input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 5%; height:10%;" multiple onchange="startRead()"/>
  </a> 
   <a id="save" href="#save">Save</a>
    <a class="button" id="more_fields" onclick="add_fields(false);" value="Add Track(s)">Add Track(s)</a>
@@ -322,10 +322,16 @@ function loaded(evt)
 {
 	// Obtain the read file data    
 	var fileString = evt.target.result;
-	console.log("file opened: " + fileString);
+	
+	//clear track(s)
+	var list = document.getElementsByClassName("mydiv");
+	while(list[0]){
+		list[0].parentElement.removeChild(list[0]);
+	}	
 	
 	var i = 0;
 	var stringx="", stringy="", stringw="", stringt="";
+	var maxTrack = 0;
 	
 	//parse every note in the file
 	while (i < fileString.length){
@@ -377,7 +383,8 @@ function loaded(evt)
 			while(parseInt(stringt) > track){
 				add_fields(false);
 			}
-			
+			if(parseInt(stringt) > maxTrack)
+				maxTrack = parseInt(stringt);
 			// initialize note and and add to track
 			var curr = document.createElement("mydiv");
 			curr.setAttribute("class", "mydiv");
@@ -393,6 +400,11 @@ function loaded(evt)
 			stringw = "";
 			stringt = "";
 		}
+	}
+	//delete tracks if there are currently more than there were in the file just opened
+	while(track > maxTrack){
+		document.getElementById("track" + track).innerHTML = "";
+		track--;
 	}
 }
 
@@ -614,7 +626,6 @@ function dragElement(elmnt, index) {
     
 	// set the element's new position:
 	p = elmnt.offsetTop - pos2;
-	console.log("p: " + p);
 	
 	//check that it is in range before changing position
 	if((elmnt.offsetTop - pos2) > 0 && (elmnt.offsetTop - pos2) < 190){
@@ -629,7 +640,8 @@ function dragElement(elmnt, index) {
 	}
 	//change width as long as note is in range of track width
     dragnum = dragnum - pos1;
-	if((dragnum + parseFloat(elmnt.style.left,10)) < 818 && dragnum >=5)
+	console.log("width: " + elmnt.parentElement.width);
+	if((dragnum + parseFloat(elmnt.style.left,10)) < parseFloat(elmnt.parentElement.width) && dragnum >=5)
 		elmnt.style.width = dragnum + "px";
   }
 
@@ -643,7 +655,6 @@ function dragElement(elmnt, index) {
 function changePosition(elmntId, yPosition, echo){
 	var elmnt = document.getElementById(elmntId);
 	elmnt.style.top = snapY(yPosition) + "px";
-	console.log(elmntId);
 	
 	//If this method call originated from this client, echo the method call to the other client(s).
 	//Otherwise, if this is an echo, do not propagate it
@@ -769,7 +780,6 @@ function getPitch(yPosition) {
 		index = 7;
 	if(f.target.id== "myCanvas8")
 		index = 8;
-	console.log(f.target.id);
 	var parentPosition = getPosition(f.currentTarget);
     var yPosition = f.clientY - parentPosition.y - 10;
     
