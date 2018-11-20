@@ -2,20 +2,74 @@
 <html lang="en">
 <head>
 <link href="dec.css" rel="stylesheet"></link>
+
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
+
 <script>
 TogetherJS.hub.on("placeNote", function (msg) {
     if (! msg.sameUrl) {
         return;
     }
-    placeNote(msg.canvasId, msg.index, msg.xPosition, msg.yPosition, true);
+    placeNote(msg.canvasId, msg.index, msg.xPosition, msg.yPosition, msg.width, true);
+});
+
+TogetherJS.hub.on("placeNoteInit", function (msg) {
+    if (! msg.sameUrl || msg.id != TogetherJS.require("peers").Self.id) {
+		console.log("WHYYYYYYYYYY " + TogetherJS.require("peers").Self.id);
+        return;
+    }
+	if(document.getElementById(msg.noteId)){
+		console.log("NO REPEATS");
+		return;
+	}
+    placeNote(msg.canvasId, msg.index, msg.xPosition, msg.yPosition, msg.width, true);
+});
+
+TogetherJS.hub.on("togetherjs.hello", function(msg){
+	if (! msg.sameUrl || ! msg.isClient) {
+        return;
+    }
+	console.log("YOOOO " + msg.isClient);
+	var list = document.getElementsByClassName("mydiv");
+	var x;
+	for(x=0; x<list.length;x++){
+		var index = 0; //index is the track number
+		if(list[x].parentElement.id== "myCanvasContainer2")
+			index = 1;
+		if(list[x].parentElement.id== "myCanvasContainer3")
+			index = 2;
+		if(list[x].parentElement.id== "myCanvasContainer4")
+			index = 3;
+		if(list[x].parentElement.id== "myCanvasContainer5")
+			index = 4;
+		if(list[x].parentElement.id== "myCanvasContainer6")
+			index = 5;
+		if(list[x].parentElement.id== "myCanvasContainer7")
+			index = 6;
+		if(list[x].parentElement.id== "myCanvasContainer8")
+			index = 7;
+		var yPosition = list[x].style.top;
+		var xPosition = list[x].style.left;
+		var width = list[x].style.width;
+		var noteId = list[x].id;
+		TogetherJS.send({
+			type: "placeNoteInit",
+			canvasId: "myCanvas" + (index+1),
+			index: index,
+			xPosition: parseFloat(xPosition),
+			yPosition: parseFloat(yPosition),
+			width: width,
+			noteId: noteId,
+			id: msg.clientId
+		});
+	}
 });
 
 TogetherJS.hub.on("changePosition", function (msg) {
     if (! msg.sameUrl) {
         return;
     }
-    changePosition(msg.elmntId, msg.yPosition, true);
+    changePosition(msg.elmntId, msg.yPosition, msg.width, true);
 });
 
 TogetherJS.hub.on("add_fields", function (msg) {
@@ -514,6 +568,8 @@ function getClickPosition(e) {
 	var parentPosition = getPosition(e.currentTarget);
     var xPosition = e.clientX - parentPosition.x;
     var yPosition = e.clientY - parentPosition.y - 10;
+	var width = "100px";
+	yPosition = snapY(yPosition);
 	var canvasId = e.target.id;
 	
 	var index = 0; //index is the track number
@@ -532,10 +588,10 @@ function getClickPosition(e) {
 	if(canvasId == "myCanvas8")
 		index = 7;
 	
-	placeNote(canvasId, index, xPosition, yPosition, false);
+	placeNote(canvasId, index, xPosition, yPosition, width, false);
 }
 
-  function placeNote(canvasId, index, xPosition, yPosition, echo){
+  function placeNote(canvasId, index, xPosition, yPosition, width, echo){
 	//create and initialize note
 	noteCount++;
 	var curr = document.createElement("mydiv");
@@ -551,8 +607,8 @@ function getClickPosition(e) {
     var e = document.getElementById(canvasId);
     e.parentElement.insertBefore(curr, e); //add note to track container, before canvas obj 
     curr.style.left = xPosition + "px";
-    curr.style.top = snapY(yPosition) + "px";
-    curr.style.width = "100px";
+    curr.style.top = yPosition + "px";
+    curr.style.width = width;
     dragElement(curr, index); //enables note dragging
 	
 	//If this method call originated from this client, echo the method call to the other client(s).
@@ -563,7 +619,8 @@ function getClickPosition(e) {
 			canvasId: canvasId,
 			index: index,
 			xPosition: xPosition,
-			yPosition: yPosition
+			yPosition: yPosition,
+			width: width
 		});
 	}
   }
@@ -649,12 +706,13 @@ function dragElement(elmnt, index) {
     /* stop moving when mouse button is released:*/
     document.onmouseup = null;
     document.onmousemove = null;
-	changePosition(elmnt.id, p, false);
+	changePosition(elmnt.id, p, elmnt.style.width, false);
   }
 }
-function changePosition(elmntId, yPosition, echo){
+function changePosition(elmntId, yPosition, width, echo){
 	var elmnt = document.getElementById(elmntId);
 	elmnt.style.top = snapY(yPosition) + "px";
+	elmnt.style.width = width;
 	
 	//If this method call originated from this client, echo the method call to the other client(s).
 	//Otherwise, if this is an echo, do not propagate it
@@ -662,7 +720,8 @@ function changePosition(elmntId, yPosition, echo){
 	TogetherJS.send({
 		type: "changePosition",
 		elmntId: elmntId,
-		yPosition: yPosition
+		yPosition: yPosition,
+		width: width
 	});
 }
 }
