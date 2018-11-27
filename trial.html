@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <link href="dec.css" rel="stylesheet"></link>
-<link href='http://fonts.googleapis.com/css?family=Oleo+Script' rel='stylesheet' type='text/css'>
-<link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
+
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
 
 <script>
@@ -16,7 +15,6 @@ TogetherJS.hub.on("placeNote", function (msg) {
 
 TogetherJS.hub.on("placeNoteInit", function (msg) {
     if (! msg.sameUrl || msg.id != TogetherJS.require("peers").Self.id) {
-		console.log("WHYYYYYYYYYY " + TogetherJS.require("peers").Self.id);
         return;
     }
 	if(document.getElementById(msg.noteId)){
@@ -30,7 +28,6 @@ TogetherJS.hub.on("togetherjs.hello", function(msg){
 	if (! msg.sameUrl || ! msg.isClient) {
         return;
     }
-	console.log("YOOOO " + msg.isClient);
 	var list = document.getElementsByClassName("mydiv");
 	var x;
 	for(x=0; x<list.length;x++){
@@ -79,6 +76,14 @@ TogetherJS.hub.on("add_fields", function (msg) {
     }
     add_fields(true);
 });
+
+TogetherJS.hub.on("extend", function (msg) {
+    if (! msg.sameUrl) {
+        return;
+    }
+    extend(msg.track,true);
+});
+
 </script>
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
@@ -91,8 +96,7 @@ TogetherJS.hub.on("add_fields", function (msg) {
     left: 50px;
     top: 50px;
 	display: block;
-	z-index: 2;
-    background-color: #BE9EC9; 
+    background-color: #2196F3; 
    /* border: 1px solid #d3d3d3; */
 }
 
@@ -106,8 +110,6 @@ TogetherJS.hub.on("add_fields", function (msg) {
 	overflow-x: scroll;
 	overflow-y: hidden;
 	white-space: nowrap;
-	z-index: 1;
-	background-color: #F0EAD6;
 }
 
 canvas.mydiv2inner {
@@ -129,13 +131,11 @@ canvas.mydiv2inner {
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #766F57;
 }
 
-/*Top Menu*/
 .topnav {
   overflow: hidden;
-  background-color: #500000;
+  background-color: #333;
 }
 
 .topnav a {
@@ -145,8 +145,6 @@ body {
   padding: 14px 16px;
   text-decoration: none;
   font-size: 17px;
-  font-family:'Arvo',Georgia,Times,serif;
-  line-height: 17px;
 }
 
 .dropdown {
@@ -202,33 +200,12 @@ body {
     padding: 5px 0;
 
     position: absolute;
-    z-index: 10;
+    z-index: 1;
 }
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
-
-h1 {
-	font: 400 60px/1.3 'Oleo Script', Helvetica, sans-serif;
-	color: #2b2b2b;
-	text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
-	text-align: center;
-	margin-top: 10px;
-}
-
-h2 {
-	font-family: 'Arvo', Georgia, Times, serif;
-	font-size: 20px;
-	line-height: 35px;
-	text-align: middle;
-
-	margin-left: 25%;
-	width:700px;
-	height:35px;
-	border:medium inset ;
-}
-
 
 </style>
 </head>
@@ -239,15 +216,15 @@ h2 {
 	<input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 5%; height:10%;" multiple onchange="startRead()"/>
  </a> 
   <a id="save" href="#save">Save</a>
-   <a class="button" id="more_fields" onclick="add_fields(false);" value="Add Track(s)">Add Track(s)</a>
+   <a href="#addtrack" onclick="add_fields(false);" >Add Track(s)</a>
   <a href="#playback">Playback</a>
-  <a onclick="TogetherJS(this); return false;">Share(on/off)</a>
+  <a href="#share" onclick="TogetherJS(this); return false;">Share(on/off)</a>
 </div>
 
 <!-- End of Top Menu formatting -->
 
 <!-- TITLE -->
-<h1>Online Collaborative Music Editor</h1>
+<h1 style="padding-left:16px">Online Collaborative Music Editor</h1>
 <h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>
 
 <div class="tooltip">Music Note Hint
@@ -261,6 +238,8 @@ h2 {
 	<p style="padding-left:5%">Track 1</p>
 	<div id="myCanvasContainer1" class="mydiv2" style = "height: 210px;">
 		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>
+		<span>&nbsp;</span>
+		<button style="padding-left: 5px; padding-right: 5px;border: 1px solid #d3d3d3; display:inline-block; position:absolute; top:100px;" onclick="extend(myCanvas1,false);">&#43;</button>
 	</div>
 
 	<!-- PITCH -->
@@ -530,12 +509,40 @@ function changeInst(e){
 		index = 6;
 	if(e.id == "ddlViewBy8")
 		index = 7;
-		
+	
+	
 	//select the instrument specified for track[index]
 	var name = e.options[e.selectedIndex].text;
 	inst[index] = soundfont.instrument(name);
 	inst[index].onready(function() {
 	});
+}
+
+function loading(){
+	
+}
+
+function extend(tnum, echo){
+	if(echo == true){
+		console.log(tnum);
+		var t = document.getElementById(tnum);
+		var newWidth = parseFloat(t.style.width) + 500;
+		t.style.width = newWidth + "px";
+	}
+	if(echo == false){
+		console.log(tnum.id);
+		var t = document.getElementById(tnum.id);
+		var newWidth = parseFloat(t.style.width) + 500;
+		t.style.width = newWidth + "px";
+		if(TogetherJS.running){
+			TogetherJS.send({
+				type: "extend",
+				track: tnum.id
+			});
+		}
+		
+	}
+
 }
 
 //add tracks
@@ -549,6 +556,8 @@ function add_fields(echo)
 		objTo.innerHTML = '<p style = "padding-left: 5%;">Track ' + track + '</p>' +
 		'<div id="myCanvasContainer' + track + '" style = "height: 210px;" class="mydiv2">' + 
 			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>' + 
+		'<span>&nbsp;</span>' +
+		'<button style="padding-left: 5px; padding-right: 5px;border: 1px solid #d3d3d3; display:inline-block; position:absolute; top:100px;" onclick="extend(myCanvas' + track + ',false);">&#43;</button>' +
 		'</div>' + 
 		'<p style = "display:inline-block; position: relative; top:210px;padding-left:5%;">Pitch:</p>' + 
 		'<div id="pitch' + track + '" class="mydiv3" style = "display:inline-block;position:relative;top:210px;"></div>' + 
