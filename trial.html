@@ -540,8 +540,8 @@ function extend(tnum, echo){
 		t.style.width = newWidth + "px";
 	}
 	if(echo == false){
-		console.log(tnum.target.parentElement.parentElement.id);
-		var t = document.getElementById(tnum.target.parentElement.parentElement.id);
+		console.log(tnum.target.parentElement.getElementsByClassName("mydiv2inner")[0].id);
+		var t = tnum.target.parentElement.getElementsByClassName("mydiv2inner")[0];
 		var newWidth = parseFloat(t.style.width) + 500;
 		t.style.width = newWidth + "px";
 		if(TogetherJS.running){
