@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <link href="dec.css" rel="stylesheet"></link>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
 
@@ -82,6 +83,13 @@ TogetherJS.hub.on("extend", function (msg) {
         return;
     }
     extend(msg.track,true);
+});
+
+TogetherJS.hub.on("closetrack", function (msg) {
+    if (! msg.sameUrl) {
+        return;
+    }
+    closetrack(msg.track,true);
 });
 
 </script>
@@ -216,7 +224,7 @@ body {
 	<input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 5%; height:10%;" multiple onchange="startRead()"/>
  </a> 
   <a id="save" href="#save">Save</a>
-   <a href="#addtrack" onclick="add_fields(false);" >Add Track(s)</a>
+   <a href="#addtrack" onclick="add_fields(false);">Add Track(s)</a>
   <a href="#playback">Playback</a>
   <a href="#share" onclick="TogetherJS(this); return false;">Share(on/off)</a>
 </div>
@@ -235,11 +243,13 @@ body {
 
 <!-- TRACK 1-->
 <div id="track1" style= "position:relative; height: 300px;">
-	<p style="padding-left:5%">Track 1</p>
+	<p style="padding-left:5%">Track 1 &nbsp;
+		<i class = "fa fa-close" style = "display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track1,false);"></i>
+	</p>
 	<div id="myCanvasContainer1" class="mydiv2" style = "height: 210px;">
 		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>
 		<span>&nbsp;</span>
-		<button style="padding-left: 5px; padding-right: 5px;border: 1px solid #d3d3d3; display:inline-block; position:absolute; top:100px;" onclick="extend(myCanvas1,false);">&#43;</button>
+		<button style="padding-left: 5px; padding-right: 5px;border: 1px solid #d3d3d3; display:inline-block; position:absolute; top:100px;" onclick="extend(event,false)">&#43;</button>
 	</div>
 
 	<!-- PITCH -->
@@ -530,8 +540,8 @@ function extend(tnum, echo){
 		t.style.width = newWidth + "px";
 	}
 	if(echo == false){
-		console.log(tnum.id);
-		var t = document.getElementById(tnum.id);
+		console.log(tnum.target.parentElement.parentElement.id);
+		var t = document.getElementById(tnum.target.parentElement.parentElement.id);
 		var newWidth = parseFloat(t.style.width) + 500;
 		t.style.width = newWidth + "px";
 		if(TogetherJS.running){
@@ -540,9 +550,62 @@ function extend(tnum, echo){
 				track: tnum.id
 			});
 		}
-		
 	}
+}
 
+function closetrack(tnum, echo){
+	var t;
+	var num;
+	if(echo == true){
+		t = document.getElementById(tnum);
+	}
+	if(echo == false){
+		t = document.getElementById(tnum.id);
+		if(TogetherJS.running){
+			TogetherJS.send({
+				type: "closetrack",
+				track: tnum.id
+			});
+		}
+	}
+	num = parseInt(t.id[5]);
+	console.log(num);
+
+	if(num < track){
+		var i = num;
+		while(i< track){
+		//	document.getElementById("track" + (i+1));
+			document.getElementById("myCanvasContainer" + i).innerHTML = document.getElementById("myCanvasContainer" + (i+1)).innerHTML;
+			document.getElementById("track" + i).getElementsByClassName("mydiv2")[0].setAttribute("id", "myCanvasContainer" + i);
+			document.getElementById("track" + i).getElementsByClassName("mydiv2inner")[0].setAttribute("id", "myCanvas" + i);
+			
+			document.getElementById("myCanvas" + i).addEventListener("click", getClickPosition, false);
+			
+			//draw lines inside track
+			var lines = document.getElementById("myCanvas" + i).getContext("2d");
+			var j;
+			for (j = 1; j < 7; j++)
+			{
+				lines.beginPath();
+				lines.moveTo(0, 28.57*j);  
+				lines.lineTo(800, 28.57*j);
+				lines.stroke();
+			}
+			console.log("drag");
+			var list = document.getElementById("myCanvasContainer" + i).getElementsByClassName("mydiv");
+			var k;
+			console.log("length: " + list.length);
+			for(k=0; k < list.length; k++){
+			console.log(k);
+				dragElement(list[k],i);
+			}
+			i++;
+		}
+		document.getElementById("track" + track).innerHTML = "";
+	}
+	else
+		t.innerHTML = "";
+	track--;
 }
 
 //add tracks
@@ -553,7 +616,10 @@ function add_fields(echo)
 	{
 		//create and initialize track[index]
 		var objTo = document.getElementById('track' + track);
-		objTo.innerHTML = '<p style = "padding-left: 5%;">Track ' + track + '</p>' +
+		objTo.innerHTML = 
+		'<p style = "padding-left: 5%;">Track ' + track + ' &nbsp;' +
+			'<i class = "fa fa-close" style = "display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track' + track + ',false);"></i>' +
+		'</p>' +
 		'<div id="myCanvasContainer' + track + '" style = "height: 210px;" class="mydiv2">' + 
 			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>' + 
 		'<span>&nbsp;</span>' +
