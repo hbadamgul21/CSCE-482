@@ -5,6 +5,7 @@
 <link href='http://fonts.googleapis.com/css?family=Oleo+Script' rel='stylesheet' type='text/css'>
 <link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 <script>
 TogetherJS.hub.on("placeNote", function (msg) {
@@ -653,6 +654,20 @@ function getClickPosition(e) {
 		});
 	}
   }
+  
+  //Removes note bar when right clicked on.
+  //Second  function prevents the right click options to be displayed.
+   $(document).on("mousedown", "mydiv", function(ev){
+        if(ev.which == 3)
+        {
+           $(this).remove();
+        }
+   });
+   $(function() {
+        $(this).bind("contextmenu", function(e) {
+            e.preventDefault();
+        });
+    }); 
 
   // Helper function to get an element's exact position
   function getPosition(el) {
