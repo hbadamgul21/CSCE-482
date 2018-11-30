@@ -243,6 +243,8 @@ h2 {
    <a class="button" id="more_fields" onclick="add_fields(false);" value="Add Track(s)">Add Track(s)</a>
   <a href="#playback">Playback</a>
   <a onclick="TogetherJS(this); return false;">Share(on/off)</a>
+  <a id="clear" href="#clear">Clear All Track</a>
+
 </div>
 
 <!-- End of Top Menu formatting -->
@@ -669,6 +671,12 @@ function getClickPosition(e) {
         });
     }); 
 
+     //Clear all tracks
+    $('#clear').click( function(e) {
+        $('mydiv').remove();
+        
+    });
+    
   // Helper function to get an element's exact position
   function getPosition(el) {
     var xPos = 0;
