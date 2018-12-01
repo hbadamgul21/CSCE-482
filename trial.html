@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
 <link href="dec.css" rel="stylesheet"></link>
-<link href='http://fonts.googleapis.com/css?family=Oleo+Script' rel='stylesheet' type='text/css'>
-<link href="https://fonts.googleapis.com/css?family=Arvo" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
 <script>
 TogetherJS.hub.on("placeNote", function (msg) {
     if (! msg.sameUrl) {
@@ -17,7 +17,6 @@ TogetherJS.hub.on("placeNote", function (msg) {
 
 TogetherJS.hub.on("placeNoteInit", function (msg) {
     if (! msg.sameUrl || msg.id != TogetherJS.require("peers").Self.id) {
-		console.log("WHYYYYYYYYYY " + TogetherJS.require("peers").Self.id);
         return;
     }
 	if(document.getElementById(msg.noteId)){
@@ -31,7 +30,6 @@ TogetherJS.hub.on("togetherjs.hello", function(msg){
 	if (! msg.sameUrl || ! msg.isClient) {
         return;
     }
-	console.log("YOOOO " + msg.isClient);
 	var list = document.getElementsByClassName("mydiv");
 	var x;
 	for(x=0; x<list.length;x++){
@@ -80,10 +78,29 @@ TogetherJS.hub.on("add_fields", function (msg) {
     }
     add_fields(true);
 });
+
+TogetherJS.hub.on("extend", function (msg) {
+    if (! msg.sameUrl) {
+        return;
+    }
+    extend(true);
+});
+
+TogetherJS.hub.on("closetrack", function (msg) {
+    if (! msg.sameUrl) {
+        return;
+    }
+    closetrack(msg.track,true);
+});
+
 </script>
 <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
 <style>
+body{
+	background-color: #666366;
+}
+
 /* Music Note Bar */
 .mydiv {
     position: absolute;
@@ -92,8 +109,8 @@ TogetherJS.hub.on("add_fields", function (msg) {
     left: 50px;
     top: 50px;
 	display: block;
-	z-index: 2;
-    background-color: #BE9EC9; 
+    background-color: #2196F3; 
+	border-radius: 15px;
    /* border: 1px solid #d3d3d3; */
 }
 
@@ -103,19 +120,21 @@ TogetherJS.hub.on("add_fields", function (msg) {
     left: 5%;
     width: 90%;
     height: 200px; 
- /*   border: 1px solid #d3d3d3; */
+    border: 1px solid #000000; 
+	border-radius: 15px;
 	overflow-x: scroll;
 	overflow-y: hidden;
 	white-space: nowrap;
-	z-index: 1;
-	background-color: #F0EAD6;
+	background-color: #404040;
+	
 }
 
 canvas.mydiv2inner {
 	display: inline;
 	width: 800px;
     height: 200px;
-	border: 1px solid #d3d3d3;
+/*	border: 1px solid #d3d3d3; */
+	background-color: #404040;
 }
 
 .mydiv3 {
@@ -130,13 +149,11 @@ canvas.mydiv2inner {
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  background-color: #766F57;
 }
 
-/*Top Menu*/
 .topnav {
   overflow: hidden;
-  background-color: #500000;
+  background-color: #1F1F21;
 }
 
 .topnav a {
@@ -146,8 +163,6 @@ body {
   padding: 14px 16px;
   text-decoration: none;
   font-size: 17px;
-  font-family:'Arvo',Georgia,Times,serif;
-  line-height: 17px;
 }
 
 .dropdown {
@@ -178,12 +193,12 @@ body {
 
 
 .topnav a:hover {
-  background-color: #ddd;
+  background-color: #B1B1B1;
   color: black;
 }
 
 .topnav a.active {
-  background-color: #4CAF50;
+  background-color: #2196F3;
   color: white;
 }
 
@@ -203,87 +218,79 @@ body {
     padding: 5px 0;
 
     position: absolute;
-    z-index: 10;
+    z-index: 1;
 }
 
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
 
-h1 {
-	font: 400 60px/1.3 'Oleo Script', Helvetica, sans-serif;
-	color: #2b2b2b;
-	text-shadow: 4px 4px 0px rgba(0,0,0,0.1);
-	text-align: center;
-	margin-top: 10px;
-}
-
-h2 {
-	font-family: 'Arvo', Georgia, Times, serif;
-	font-size: 20px;
-	line-height: 35px;
-	text-align: middle;
-
-	margin-left: 25%;
-	width:700px;
-	height:35px;
-	border:medium inset ;
-}
-
-
 </style>
 </head>
 <body>
-
 <div class="topnav">
- <a href="#open">Open
-	<input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 5%; height:10%;" multiple onchange="startRead()"/>
- </a> 
-  <a id="save" href="#save">Save</a>
-   <a class="button" id="more_fields" onclick="add_fields(false);" value="Add Track(s)">Add Track(s)</a>
-  <a href="#playback">Playback</a>
-  <a onclick="TogetherJS(this); return false;">Share(on/off)</a>
-  <a id="clear" href="#clear">Clear All Track</a>
-
+	<a class="active"href="#open">Open
+		<input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 5%; height:10%;" multiple onchange="startRead()"/>
+	</a> 
+	<a id="save" href="#save">Save</a>
+	<a href="#addtrack" onclick="add_fields(false);">Add Track</a>
+	<a id="clear" href="#clear">Clear Tracks</a>
+	<a href="#playback">Playback</a>
+	<a href="#share" onclick="TogetherJS(this); return false;">Share(on/off)</a>
+	<img style= "left: 75%; padding-top:10px; position:absolute; height: 30px; width: 200px; object-fit: contain" src="music_collab.png"></img>
 </div>
 
 <!-- End of Top Menu formatting -->
 
-<!-- TITLE -->
-<h1>Online Collaborative Music Editor</h1>
-<h2 id="score" contenteditable = "true" style="text-align:center;">Untitled</h2>
 
+<!-- TITLE -->
+<center><h2 id="score" contenteditable = "true" style="text-align:center; border-radius: 5px; padding-top:5px; padding-bottom:5px; width:300px; background-color: #B1B1B1;">Untitled</h2></center>
+
+<!-- NOTE HINT 
 <div class="tooltip">Music Note Hint
   <span class="tooltiptext">
       <img src="insert.jpg" alt="hint">
   </span>
 </div>
+-->
 
 <!-- TRACK 1-->
-<div id="track1" style= "position:relative; height: 300px;">
-	<p style="padding-left:5%">Track 1</p>
-	<div id="myCanvasContainer1" class="mydiv2" style = "height: 210px;">
-		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>
+<div id="track1" style= "padding-top: 1px; position:relative; height: 330px; width: 100%;">
+	<!-- LABEL + CLOSE BUTTON -->
+	<p style="text-align:center;border-radius: 5px;height: 20px; padding: 5px; margin-left: 5%; width:90px; background-color: #7C7C7C;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Track 1 &nbsp;
+		<i class = "fas fa-times" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track1,false);"></i>
+	</p>
+	
+	<!-- CANVAS -->
+	<div id="myCanvasContainer1" class="mydiv2" style = "z-index:2;height: 210px;">
+		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" width = "2000" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>
 	</div>
+	<!-- TOOLBAR -->
+	<div style = "z-index:1;top:200px;display:inline-block;position:relative;left:5%; width: 90%; height: 50px; border-radius: 5px; border: 1px solid #404040;background-color: #7C7C7C;"> 
+		<!-- PITCH -->
+		<p style="text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;z-index:2;display:inline-block;position:relative;padding-left:2%;">Pitch:</p>
+		<div id="pitch1" class="mydiv3" style = "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff; display:inline-block;position:relative;">---</div>
+		<!-- INSTRUMENT SELECT -->
+		<div style = "display:inline-block; position:relative;">
+			<span style= "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Instrument: </span>
+			<select id="ddlViewBy1" style = "border-radius: 5px;"onChange="changeInst(this);"> </select>
+			<i id="loading1" class="fas fa-sync fa-spin fa-lg" style="display: none; top:2px;z-index:3;color: #00C695; "></i>
 
-	<!-- PITCH -->
-	<p style="display:inline-block;position:relative;padding-left:5%;top:210px;">Pitch:</p>
-	<div id="pitch1" class="mydiv3" style = "display:inline-block;position:relative;top:210px;"></div>
-	<!-- INSTRUMENT SELECT -->
-	<div style = "display:inline-block; position:relative;top:210px;">
-		<span>Instrument: </span>
-		<select id="ddlViewBy1" onChange="changeInst(this);"> </select>
+		</div>
 	</div>
+	<!-- EXTEND CANVAS BUTTON -->
+	<span>&nbsp;</span>
+	<i class = "fas fa-plus-circle fa-lg" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>
 </div>
 
 <!-- TRACK 2-8 PLACHOLDERS -->
-<div id="track2" style= "position:relative; height: 300px;"></div>
-<div id="track3" style= "position:relative; height: 300px;"></div>
-<div id="track4" style= "position:relative; height: 300px;"></div>
-<div id="track5" style= "position:relative; height: 300px;"></div>
-<div id="track6" style= "position:relative; height: 300px;"></div>
-<div id="track7" style= "position:relative; height: 300px;"></div>
-<div id="track8" style= "position:relative; height: 300px;"></div>
+<div id="track2" style= "position:relative; padding-top: 1px; background-color: #524F52; position:relative; height: 330px;width: 100%;"></div>
+<div id="track3" style= "position:relative; padding-top: 1px; position:relative; height: 330px;width: 100%;"></div>
+<div id="track4" style= "position:relative; padding-top: 1px; background-color: #524F52; position:relative; height: 330px;width: 100%;"></div>
+<div id="track5" style= "position:relative; padding-top: 1px; position:relative; height: 330px;width: 100%;"></div>
+<div id="track6" style= "position:relative; padding-top: 1px; background-color: #524F52; position:relative; height: 330px;width: 100%;"></div>
+<div id="track7" style= "position:relative; padding-top: 1px; position:relative; height: 330px;width: 100%;"></div>
+<div id="track8" style= "position:relative; padding-top: 1px; background-color: #524F52; position:relative; height: 330px;width: 100%;"></div>
 
 <script src="soundfont-player.js"></script>
 <script>
@@ -291,6 +298,7 @@ h2 {
 
 var pSave = []; //Store note positions into array
 var inst = []; //keep track of what instrument is used for each track
+var options = [];
 var track = 1; //number of tracks
 var noteCount = 0; //used to generate ids for notes as they are created
 var navopen = document.querySelector(".topnav a[href='#open']"); //refers to menu option 'open'
@@ -314,11 +322,22 @@ initcontainer.addEventListener("click", getClickPosition, false);
 //draw lines for track1
 var c = document.getElementById("myCanvas1");
 var lines = c.getContext("2d");
+lines.strokeStyle="#494949";
+lines.lineWidth = 2;
+
 for (i = 1; i < 7; i++)
 {
 	lines.beginPath();
 	lines.moveTo(0, 28.57*i);  
-	lines.lineTo(800, 28.57*i);
+	lines.lineTo(c.width, 28.57*i);
+	lines.stroke();
+}
+
+for (i = 250; i < c.width; i+=250)
+{
+	lines.beginPath();
+	lines.moveTo(i, 0);  
+	lines.lineTo(i, c.height);
 	lines.stroke();
 }
 
@@ -502,16 +521,16 @@ xhr.send();
 xhr.onreadystatechange = function () {
 	if (xhr.readyState !== 4) return;
 	if (xhr.status !== 200) return console.error("couldnt fetch instruments, defaulting to piano");
-
-	var section = document.getElementById("panel");
-
+	var x=0;
 	(JSON.parse(xhr.response) || []).sort().forEach(function (instrumentName) {
 		var e = document.getElementById("ddlViewBy1");
 		var option = document.createElement("option");
 		option.text = instrumentName;
 		option.value = instrumentName;
 		option.selected = "selected";
+		options[x] = option;
 		e.appendChild(option);
+		x++;
 	});
 };
 
@@ -533,12 +552,136 @@ function changeInst(e){
 		index = 6;
 	if(e.id == "ddlViewBy8")
 		index = 7;
-		
+	
+	
 	//select the instrument specified for track[index]
 	var name = e.options[e.selectedIndex].text;
 	inst[index] = soundfont.instrument(name);
+	loading(index+1,true);
 	inst[index].onready(function() {
+		loading(index+1, false);
 	});
+}
+
+function loading(index,start){
+	var sym = document.getElementById("loading" + index);
+	if(start == true){
+		sym.style.display = "inline-block";
+	}
+	else
+		sym.style.display = "none";
+}
+
+function extend(f,echo){
+	if(echo==false){
+		console.log(f.target.style.color);
+		f.target.style.color="#404040";
+		setTimeout(function() {f.target.style.color="#B1B1B1";}, 250);
+	}
+	
+	var i;
+	for(i=1; i<=track; i++){
+		console.log(i);
+		console.log("track: " + track);
+		var t = document.getElementById("myCanvas" + i);
+		var newWidth = parseFloat(t.style.width) + 500;
+		t.style.width = newWidth + "px";
+		t.setAttribute("width",newWidth);
+		
+		var lines = t.getContext("2d");
+		lines.strokeStyle="#494949";
+		lines.lineWidth = 2;
+		
+		var j;
+		for (j = 1; j < 7; j++)
+		{
+			lines.beginPath();
+			lines.moveTo(0, 28.57*j);  
+			lines.lineTo(t.width, 28.57*j);
+			lines.stroke();
+		}
+
+		for (j = 250; j < t.width; j+=250)
+		{
+			lines.beginPath();
+			lines.moveTo(j, 0);  
+			lines.lineTo(j, t.height);
+			lines.stroke();
+		}
+	}
+		
+	
+	if(echo == false && TogetherJS.running){
+		TogetherJS.send({
+			type: "extend"
+		});
+	}
+}
+
+function closetrack(tnum, echo){
+	var t;
+	var num;
+	if(echo == true){
+		t = document.getElementById(tnum);
+	}
+	if(echo == false){
+		t = document.getElementById(tnum.id);
+		if(TogetherJS.running){
+			TogetherJS.send({
+				type: "closetrack",
+				track: tnum.id
+			});
+		}
+	}
+	num = parseInt(t.id[5]);
+	console.log(num);
+
+	if(num < track){
+		var i = num;
+		while(i< track){
+			document.getElementById("myCanvasContainer" + i).innerHTML = document.getElementById("myCanvasContainer" + (i+1)).innerHTML;
+			document.getElementById("track" + i).getElementsByClassName("mydiv2")[0].setAttribute("id", "myCanvasContainer" + i);
+			document.getElementById("track" + i).getElementsByClassName("mydiv2inner")[0].setAttribute("id", "myCanvas" + i);
+			
+			document.getElementById("myCanvas" + i).addEventListener("click", getClickPosition, false);
+			
+			//draw lines inside track
+			var c = document.getElementById("myCanvas" + i);
+			var lines = c.getContext("2d");
+			lines.strokeStyle="#494949";
+			lines.lineWidth = 2;
+			
+			var j;
+			for (j = 1; j < 7; j++)
+			{
+				lines.beginPath();
+				lines.moveTo(0, 28.57*j);  
+				lines.lineTo(c.width, 28.57*j);
+				lines.stroke();
+			}
+
+			for (j = 250; j < c.width; j+=250)
+			{
+				lines.beginPath();
+				lines.moveTo(j, 0);  
+				lines.lineTo(j, c.height);
+				lines.stroke();
+			}		
+			console.log("drag");
+			var list = document.getElementById("myCanvasContainer" + i).getElementsByClassName("mydiv");
+			var k;
+			console.log("length: " + list.length);
+			for(k=0; k < list.length; k++){
+			console.log(k);
+				dragElement(list[k],i);
+			}
+			i++;
+		}
+		document.getElementById("track" + track).innerHTML = "";
+	}
+	else
+		t.innerHTML = "";
+	track--;
 }
 
 //add tracks
@@ -548,23 +691,43 @@ function add_fields(echo)
 	if (track<=8)
 	{
 		//create and initialize track[index]
+		if(document.getElementById('myCanvas' + (track-1)))
+			var currwidth= parseFloat(document.getElementById('myCanvas' + (track-1)).style.width);
+		else
+			currwidth = 2000;
+		console.log("fgdgf" + currwidth);
 		var objTo = document.getElementById('track' + track);
-		objTo.innerHTML = '<p style = "padding-left: 5%;">Track ' + track + '</p>' +
-		'<div id="myCanvasContainer' + track + '" style = "height: 210px;" class="mydiv2">' + 
-			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>' + 
+		objTo.innerHTML = 
+		'<p style="text-align:center;border-radius: 5px;height: 20px; padding: 5px; margin-left: 5%; width:90px; background-color: #7C7C7C;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Track ' + track + ' &nbsp;' +
+			'<i class = "fas fa-close" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track' + track + ',false);"></i>' +
+		'</p>' +
+		'<div id="myCanvasContainer' + track + '" style = "z-index:2;height: 210px;" class="mydiv2">' + 
+			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" width="' + currwidth + '" style= "height: 200px; width: ' + currwidth + 'px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>' + 
 		'</div>' + 
-		'<p style = "display:inline-block; position: relative; top:210px;padding-left:5%;">Pitch:</p>' + 
-		'<div id="pitch' + track + '" class="mydiv3" style = "display:inline-block;position:relative;top:210px;"></div>' + 
-		'<div style = "display: inline-block; position:relative;top:210px;">'+ 
-			'<span>Instrument: </span>' + 
-			'<select id="ddlViewBy' + track + '" onChange="changeInst(this);"></select>' + 
-		'</div>';
-		
+		'<div style = "z-index:1;top:200px;display:inline-block;position:relative;left:5%; width: 90%; height: 50px; border-radius: 5px; border: 1px solid #404040;background-color: #7C7C7C;">'+
+			'<p style="text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;z-index:2;display:inline-block;position:relative;padding-left:2%;">Pitch:</p>' +
+			'<div id="pitch' + track + '" class="mydiv3" style = "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff; display:inline-block;position:relative;">---</div>' +
+			'<div style = "display:inline-block; position:relative;">' +
+				'<span style= "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Instrument: </span>' +
+				'<select id="ddlViewBy' + track + '" style = "border-radius: 5px;"onChange="changeInst(this);"> </select>' +
+				'<i id="loading' + track + '" class="fas fa-sync fa-spin fa-lg" style="display: none; top:2px;z-index:3;color: #00C695; "></i>' +
+			'</div>' +
+		'</div>' +
+		'<span>&nbsp;</span>' +
+		'<i class = "fas fa-plus-circle fa-lg" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>';
+
 		//create instrument select for track[index]
 		var e = document.getElementById("ddlViewBy" + track);
-		var options = document.getElementById("ddlViewBy1").innerHTML;
-		e.innerHTML = options;
-		
+		document.getElementById("myCanvasContainer" + track).width = width + "px";
+		var tempoptions = document.getElementById("ddlViewBy1").innerHTML;
+		var k;
+		if(track==1){
+			for(k=0; k<options.length; k++)
+				e.appendChild(options[0]);
+		}
+		else{
+			e.innerHTML = tempoptions;
+		}
 		//make track clickable/enable note creation
 		var c = document.getElementById("myCanvas" + track);
 		c.addEventListener("click", getClickPosition, false);
@@ -572,14 +735,23 @@ function add_fields(echo)
 		
 		//draw lines inside track
 		var lines = c.getContext("2d");
+		lines.strokeStyle="#494949";
+		lines.lineWidth = 2;
 		for (i = 1; i < 7; i++)
 		{
 			lines.beginPath();
 			lines.moveTo(0, 28.57*i);  
-			lines.lineTo(800, 28.57*i);
+			lines.lineTo(c.width, 28.57*i);
 			lines.stroke();
 		}
-				
+
+		for (i = 250; i < c.width; i+=250)
+		{
+			lines.beginPath();
+			lines.moveTo(i, 0);  
+			lines.lineTo(i, c.height);
+			lines.stroke();
+		}		
 	}
 	else
 		alert('You have reached the maximum tracks!');
@@ -677,6 +849,7 @@ function getClickPosition(e) {
         
     });
     
+	
   // Helper function to get an element's exact position
   function getPosition(el) {
     var xPos = 0;
@@ -749,7 +922,6 @@ function dragElement(elmnt, index) {
 	}
 	//change width as long as note is in range of track width
     dragnum = dragnum - pos1;
-	console.log("width: " + elmnt.parentElement.width);
 	if((dragnum + parseFloat(elmnt.style.left,10)) < parseFloat(elmnt.parentElement.width) && dragnum >=5)
 		elmnt.style.width = dragnum + "px";
   }
@@ -914,7 +1086,7 @@ function getPitch(yPosition) {
 		index = 7;
 	if(f.target.id== "myCanvas8")
 		index = 8;
-    document.getElementById("pitch" + index).innerHTML = "";
+    document.getElementById("pitch" + index).innerHTML = "---";
   }
   
 </script>
