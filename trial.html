@@ -105,13 +105,12 @@ body{
 .mydiv {
     position: absolute;
     width: 100px;
-    height: 9.52333px;
+    height: 10px;
     left: 50px;
     top: 50px;
 	display: block;
     background-color: #2196F3; 
 	border-radius: 15px;
-   /* border: 1px solid #d3d3d3; */
 }
 
 /* Track box */
@@ -133,7 +132,6 @@ canvas.mydiv2inner {
 	display: inline;
 	width: 800px;
     height: 200px;
-/*	border: 1px solid #d3d3d3; */
 	background-color: #404040;
 }
 
@@ -142,7 +140,6 @@ canvas.mydiv2inner {
     left: 5px;
     width: 35px;
     height: 20px;
-  /*  border: 1px solid #d3d3d3;	*/
 }
 
  /* Start of Top Menu formatting */
@@ -165,33 +162,6 @@ body {
   font-size: 17px;
 }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-}
-
-.dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-}
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-
-
 .topnav a:hover {
   background-color: #B1B1B1;
   color: black;
@@ -202,68 +172,110 @@ body {
   color: white;
 }
 
-.tooltip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted black;
+.playback-tools {
+  width:700px;
+  margin-left: 150px;
+  border-radius: 5px;
+  height:50px;
+  background-color: #7C7C7C;
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
 }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    width: 100px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-
-    position: absolute;
-    z-index: 1;
+.slider {
+    -webkit-appearance:none;
+    width: 150px;
+    height: 15px;
+	float:left;
+    border-radius: 5px;
+    background: #404040;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%; 
+    background: #4CAF50;
+    cursor: pointer;
 }
 
-.tooltip:hover .tooltiptext {
-    visibility: visible;
+.slider::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #2196F3;
+    cursor: pointer;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.hover-fade{
+	opacity: 0.7;
+}
+
+.hover-fade:hover {
+    opacity: 1;
+}
 }
 
 </style>
 </head>
-<body>
-<div class="topnav">
-	<a class="active"href="#open">Open
-		<input id="file" type="file" style="opacity: 0.0; position: absolute; top: 0; left: 0; bottom: 0; right: 0; width: 5%; height:10%;" multiple onchange="startRead()"/>
+
+<body  style="font-family: Verdana, Arial;">
+
+<!-- TOP NAV -->
+<div class="topnav" style="position:relative; z-index:2;">
+	<a href="#open">Open
+		<input title = "" id="file" type="file" style="cursor: pointer;position:absolute; width:75px; height:50px; margin-top:-10px;margin-left: -60px; opacity: 0.0;" multiple onchange="startRead()"/>
 	</a> 
 	<a id="save" href="#save">Save</a>
 	<a href="#addtrack" onclick="add_fields(false);">Add Track</a>
-	<a id="clear" href="#clear">Clear Tracks</a>
 	<a href="#playback">Playback</a>
 	<a href="#share" onclick="TogetherJS(this); return false;">Share(on/off)</a>
-	<img style= "left: 75%; padding-top:10px; position:absolute; height: 30px; width: 200px; object-fit: contain" src="music_collab.png"></img>
+	<img style= "left: 75%; padding-top:10px; position:absolute; height: 30px; width: 200px; object-fit: contain" src="https://i.ibb.co/60bjYPh/music-collab.png"></img>
 </div>
 
+<!-- PLAYBACK TOOLBAR -->
+<div id="playtools" class="playback-tools" style="margin-top:-5px; z-index:1;"> 
+	<!-- TEMPO SLIDER -->
+	<div style="display:inline-block; margin-top:1px; float:left;">
+		<p style="display:inline;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040;">Tempo:  </p>
+		<p id="demo" style="display:inline;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040;"></p>
+		<br></br>
+		<input type="range" style="margin-left: 2px; margin-top:-12px;" value="100" min="1" max="200" class="slider" id="myRange"></input>
+	</div>
+	<!-- PLAY BUTTON -->
+	<button class="hover-fade" style="margin-left: 20px; border: 2px solid #7c7c7c; border-radius: 15%; height: 60px; display:inline; float:left;" onclick="genPlayback();">
+		<i title = "Play" class = "fas fa-play-circle fa-3x" style = "color:#6baa5c;"></i>
+	</button>
+</div>
 <!-- End of Top Menu formatting -->
 
 
 <!-- TITLE -->
-<center><h2 id="score" contenteditable = "true" style="text-align:center; border-radius: 5px; padding-top:5px; padding-bottom:5px; width:300px; background-color: #B1B1B1;">Untitled</h2></center>
-
-<!-- NOTE HINT 
-<div class="tooltip">Music Note Hint
-  <span class="tooltiptext">
-      <img src="insert.jpg" alt="hint">
-  </span>
-</div>
--->
+<center><h2 id="score" class="hover-fade" contenteditable = "true" style="display:inline-block; z-index:2; font-weight: 500; text-align:center; border-radius: 5px; padding-top:5px; padding-bottom:5px; width:300px; height:30px; background-color: #B1B1B1;">Untitled</h2></center>
 
 <!-- TRACK 1-->
 <div id="track1" style= "padding-top: 1px; position:relative; height: 330px; width: 100%;">
-	<!-- LABEL + CLOSE BUTTON -->
-	<p style="text-align:center;border-radius: 5px;height: 20px; padding: 5px; margin-left: 5%; width:90px; background-color: #7C7C7C;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Track 1 &nbsp;
-		<i class = "fas fa-times" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track1,false);"></i>
-	</p>
-	
+	<!-- LABEL + CLOSE & CLEAR BUTTONS -->
+	<p style="text-align:center;border-radius: 5px;height: 20px; padding: 5px; padding-right: 35px; margin-left: 5%; width:90px; background-color: #7C7C7C;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Track 1 &nbsp;
+		<i title = "Delete track" class = "fas fa-times hover-fade" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track1,false);"></i>
+		<i title = "Clear track" id = "clear1" class = "fas fa-eraser hover-fade" style = "color: #B1B1B1; margin-left: 20px; text-shadow: none;display:inline-block; position:absolute;"></i>
+	</p>	
 	<!-- CANVAS -->
-	<div id="myCanvasContainer1" class="mydiv2" style = "z-index:2;height: 210px;">
-		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" width = "2000" style= "height: 200px; width: 2000px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>
+	<div id="myCanvasContainer1" class="mydiv2" style = "z-index:2;height: 210px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)">
+		<canvas id = "myCanvas1" class = "mydiv2inner" height="200" width = "2000" style= "height: 200px; width: 2000px;" ></canvas>
 	</div>
 	<!-- TOOLBAR -->
 	<div style = "z-index:1;top:200px;display:inline-block;position:relative;left:5%; width: 90%; height: 50px; border-radius: 5px; border: 1px solid #404040;background-color: #7C7C7C;"> 
@@ -275,12 +287,11 @@ body {
 			<span style= "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Instrument: </span>
 			<select id="ddlViewBy1" style = "border-radius: 5px;"onChange="changeInst(this);"> </select>
 			<i id="loading1" class="fas fa-sync fa-spin fa-lg" style="display: none; top:2px;z-index:3;color: #00C695; "></i>
-
 		</div>
 	</div>
 	<!-- EXTEND CANVAS BUTTON -->
 	<span>&nbsp;</span>
-	<i class = "fas fa-plus-circle fa-lg" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>
+	<i title = "Extend track" class = "fas fa-plus-circle fa-lg hover-fade" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>
 </div>
 
 <!-- TRACK 2-8 PLACHOLDERS -->
@@ -309,6 +320,7 @@ var navplayback = document.querySelector(".topnav a[href='#playback']"); //refer
 var ctx = new AudioContext();
 var soundfont = new Soundfont(ctx);
 inst[0] = soundfont.instrument('marimba'); //initialize track1 instrument to marimba as default
+var tempo = 100;
 
 //window size used to scale display
 var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -341,7 +353,14 @@ for (i = 250; i < c.width; i+=250)
 	lines.stroke();
 }
 
+var slider = document.getElementById("myRange");
+var output = document.getElementById("demo");
+output.innerHTML = slider.value;
 
+slider.oninput = function() {
+	output.innerHTML = this.value;
+	tempo = this.value;
+}
 // top menu event listeners
  navopen.addEventListener("click", function(e){
 	navopen.setAttribute("class", "active");
@@ -356,11 +375,35 @@ for (i = 250; i < c.width; i+=250)
 
  navplayback.addEventListener("click", function(e){
 	navplayback.setAttribute("class", "active");
-	genPlayback(e);
+	if(document.getElementById("playtools").style.visibility == "hidden"){
+		document.getElementById("playtools").style.visibility = "visible";
+		document.getElementById("playtools").style.visibility = "visible";
+	}
+	else
+		document.getElementById("playtools").style.visibility = "hidden";
 	setTimeout(function() {navplayback.setAttribute("class", "");}, 1000);
-	
 });
-  
+ 
+//Removes note bar when right clicked on.
+//Second  function prevents the right click options to be displayed.
+$(document).on("mousedown", "mydiv", function(ev){
+	if(ev.which == 3)
+	{
+	   $(this).remove();
+	}
+});
+$(function() {
+	$(this).bind("contextmenu", function(e) {
+		e.preventDefault();
+	});
+}); 
+
+ //Clear track
+$(document).on('click', "[id*='clear']", function(e) {
+	$("#myCanvasContainer" + e.target.id.substring(e.target.id.length-1) + " > .mydiv").remove();
+});
+
+ 
 //// END OF INITIALIZATION, START OF FUNCTIONS //// 
  
 //// SAVE ////
@@ -574,15 +617,12 @@ function loading(index,start){
 
 function extend(f,echo){
 	if(echo==false){
-		console.log(f.target.style.color);
 		f.target.style.color="#404040";
 		setTimeout(function() {f.target.style.color="#B1B1B1";}, 250);
 	}
 	
 	var i;
 	for(i=1; i<=track; i++){
-		console.log(i);
-		console.log("track: " + track);
 		var t = document.getElementById("myCanvas" + i);
 		var newWidth = parseFloat(t.style.width) + 500;
 		t.style.width = newWidth + "px";
@@ -634,7 +674,6 @@ function closetrack(tnum, echo){
 		}
 	}
 	num = parseInt(t.id[5]);
-	console.log(num);
 
 	if(num < track){
 		var i = num;
@@ -667,12 +706,10 @@ function closetrack(tnum, echo){
 				lines.lineTo(j, c.height);
 				lines.stroke();
 			}		
-			console.log("drag");
+
 			var list = document.getElementById("myCanvasContainer" + i).getElementsByClassName("mydiv");
 			var k;
-			console.log("length: " + list.length);
 			for(k=0; k < list.length; k++){
-			console.log(k);
 				dragElement(list[k],i);
 			}
 			i++;
@@ -695,11 +732,12 @@ function add_fields(echo)
 			var currwidth= parseFloat(document.getElementById('myCanvas' + (track-1)).style.width);
 		else
 			currwidth = 2000;
-		console.log("fgdgf" + currwidth);
+			
 		var objTo = document.getElementById('track' + track);
 		objTo.innerHTML = 
-		'<p style="text-align:center;border-radius: 5px;height: 20px; padding: 5px; margin-left: 5%; width:90px; background-color: #7C7C7C;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Track ' + track + ' &nbsp;' +
-			'<i class = "fas fa-close" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track' + track + ',false);"></i>' +
+		'<p style="text-align:center;border-radius: 5px;height: 20px; padding: 5px; padding-right: 35px; margin-left: 5%; width:90px; background-color: #7C7C7C;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Track ' + track + ' &nbsp;' + 
+			'<i title = "Delete track" class = "fas fa-close" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track' + track + ',false);"></i>' +
+			'<i title = "Clear track" id = "clear' + track + '" class = "fas fa-eraser" style = "color: #B1B1B1; margin-left: 20px; text-shadow: none;display:inline-block; position:absolute;"></i>' +
 		'</p>' +
 		'<div id="myCanvasContainer' + track + '" style = "z-index:2;height: 210px;" class="mydiv2">' + 
 			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" width="' + currwidth + '" style= "height: 200px; width: ' + currwidth + 'px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>' + 
@@ -714,7 +752,7 @@ function add_fields(echo)
 			'</div>' +
 		'</div>' +
 		'<span>&nbsp;</span>' +
-		'<i class = "fas fa-plus-circle fa-lg" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>';
+		'<i title = "Extend track" class = "fas fa-plus-circle fa-lg" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>';
 
 		//create instrument select for track[index]
 		var e = document.getElementById("ddlViewBy" + track);
@@ -771,7 +809,7 @@ function getClickPosition(e) {
     // calculate position coordinates
 	var parentPosition = getPosition(e.currentTarget);
     var xPosition = e.clientX - parentPosition.x;
-    var yPosition = e.clientY - parentPosition.y - 10;
+    var yPosition = e.clientY - parentPosition.y;
 	var width = "100px";
 	yPosition = snapY(yPosition);
 	var canvasId = e.target.id;
@@ -799,7 +837,7 @@ function getClickPosition(e) {
 	//create and initialize note
 	noteCount++;
 	var curr = document.createElement("mydiv");
-    curr.setAttribute("class", "mydiv");
+    curr.setAttribute("class", "mydiv hover-fade");
     curr.setAttribute("id", "note" + noteCount);
 	
 	// assign pitch based on y position and play note
@@ -828,27 +866,7 @@ function getClickPosition(e) {
 		});
 	}
   }
-  
-  //Removes note bar when right clicked on.
-  //Second  function prevents the right click options to be displayed.
-   $(document).on("mousedown", "mydiv", function(ev){
-        if(ev.which == 3)
-        {
-           $(this).remove();
-        }
-   });
-   $(function() {
-        $(this).bind("contextmenu", function(e) {
-            e.preventDefault();
-        });
-    }); 
-
-     //Clear all tracks
-    $('#clear').click( function(e) {
-        $('mydiv').remove();
-        
-    });
-    
+ 
 	
   // Helper function to get an element's exact position
   function getPosition(el) {
@@ -922,7 +940,8 @@ function dragElement(elmnt, index) {
 	}
 	//change width as long as note is in range of track width
     dragnum = dragnum - pos1;
-	if((dragnum + parseFloat(elmnt.style.left,10)) < parseFloat(elmnt.parentElement.width) && dragnum >=5)
+	console.log(document.getElementById("myCanvas" + (index+1)).width);
+	if((dragnum + parseFloat(elmnt.style.left,10)) < parseFloat(document.getElementById("myCanvas" + (index+1)).width) && dragnum >=5)
 		elmnt.style.width = dragnum + "px";
   }
 
@@ -930,7 +949,8 @@ function dragElement(elmnt, index) {
     /* stop moving when mouse button is released:*/
     document.onmouseup = null;
     document.onmousemove = null;
-	changePosition(elmnt.id, p, elmnt.style.width, false);
+	if(pos2 != 0)
+		changePosition(elmnt.id, p, elmnt.style.width, false);
   }
 }
 function changePosition(elmntId, yPosition, width, echo){
@@ -953,62 +973,62 @@ function changePosition(elmntId, yPosition, width, echo){
 //returns pitch corresponding to given y-coordinate
 function getPitch(yPosition) {
 // Pitches:	C4 C#4 D4 D#4 E4 F4 F#4 G4 G#4 A4 A#4 B4 C5
-	if (yPosition == (-10) + 21.428 || (yPosition >=(-10) && yPosition < (-10) + (15*1)))
+	if (yPosition ==  10 || (yPosition >=0 && yPosition <  (15*1)))
 		return "C5";
-	if (yPosition == (-10) + (15*1) + 21.428 || (yPosition >=(-10) + (15*1) && yPosition < (-10) + (15*2)))
+	if (yPosition ==  21.428 || (yPosition >= (15*1) && yPosition <  (15*2)))
 		return "B4";
-	if (yPosition == (-10) + (15*2) + 21.428 || (yPosition >=(-10) + (15*2) && yPosition < (-10) + (15*3)))
+	if (yPosition ==  (15*1) + 21.428 || (yPosition >= (15*2) && yPosition <=  (15*3)))
 		return "A#4";
-	if (yPosition == (-10) + (15*3) + 21.428 || (yPosition >=(-10) + (15*3) && yPosition < (-10) + (15*4)))
+	if (yPosition ==  (15*2) + 21.428 || (yPosition >= (15*3) && yPosition <=  (15*4)))
 		return "A4";
-	if (yPosition == (-10) + (15*4) + 21.428 || (yPosition >=(-10) + (15*4) && yPosition < (-10) + (15*5)))
+	if (yPosition ==  (15*3) + 21.428 || (yPosition >= (15*4) && yPosition <=  (15*5)))
 		return "G#4";
-	if (yPosition == (-10) + (15*5) + 20.428 || (yPosition >=(-10) + (15*5) && yPosition < (-10) + (15*6)))
+	if (yPosition ==  (15*4) + 20.428 || (yPosition >= (15*5) && yPosition <=  (15*6)))
 		return "G4";
-	if (yPosition == (-10) + (15*6) + 19.428 || (yPosition >=(-10) + (15*6) && yPosition < (-10) + (15*7)))
+	if (yPosition ==  (15*5) + 19.428 || (yPosition >= (15*6) && yPosition <=  (15*7)))
 		return "F#4";
-	if (yPosition == (-10) + (15*7) + 18.428 || (yPosition >=(-10) + (15*7) && yPosition < (-10) + (15*8)))
+	if (yPosition ==  (15*6) + 18.428 || (yPosition >= (15*7) && yPosition <=  (15*8)))
 		return "F4";
-	if (yPosition == (-10) + (15*8) + 17.428 || (yPosition >=(-10) + (15*8) && yPosition < (-10) + (15*9)))
+	if (yPosition ==  (15*7) + 17.428 || (yPosition >= (15*8) && yPosition <=  (15*9)))
 		return "E4";
-	if (yPosition == (-10) + (15*9) + 16.428 || (yPosition >=(-10) + (15*9) && yPosition < (-10) + (15*10)))
+	if (yPosition ==  (15*8) + 16.428 || (yPosition >= (15*9) && yPosition <=  (15*10)))
 		return "D#4";
-	if (yPosition == (-10) + (15*10) + 15.428 || (yPosition >=(-10) + (15*10) && yPosition < (-10) + (15*11)))
+	if (yPosition ==  (15*9) + 15.428 || (yPosition >= (15*10) && yPosition <=  (15*11)))
 		return "D4";
-	if (yPosition == (-10) + (15*11) + 15.428 || (yPosition >=(-10) + (15*11) && yPosition < (-10) + (15*12)))
+	if (yPosition ==  (15*10) + 15.428 || (yPosition >= (15*11) && yPosition <=  (15*12)))
 		return "C#4";
-	if (yPosition == (-10) + (15*12) + 15.428 || (yPosition >=(-10) + (15*12) && yPosition <= (-10) + (15*13)+5))
+	if (yPosition ==  (15*11) + 15.428 || (yPosition >= (15*12) && yPosition <=  (15*13)+5))
 		return "C4";
   }
   
   // places note either in a space or on a line
   function snapY(yPosition) {
-	if (yPosition >=(-10) && yPosition < (-10) + (15*1))
-		return (-10) + 21.4275;
-	if (yPosition >=(-10) + (15*1) && yPosition < (-10) + (15*2))
-		return (-10) + (15*1) + 21.4275;
-	if (yPosition >=(-10) + (15*2) && yPosition < (-10) + (15*3))
-		return (-10) + (15*2) + 21.4275;
-	if (yPosition >=(-10) + (15*3) && yPosition < (-10) + (15*4))
-		return (-10) + (15*3) + 21.4275;
-	if (yPosition >=(-10) + (15*4) && yPosition < (-10) + (15*5))
-		return (-10) + (15*4) + 21.4275;
-	if (yPosition >=(-10) + (15*5) && yPosition < (-10) + (15*6))
-		return (-10) + (15*5) + 20.4275;
-	if (yPosition >=(-10) + (15*6) && yPosition < (-10) + (15*7))
-		return (-10) + (15*6) + 19.4275;
-	if (yPosition >=(-10) + (15*7) && yPosition < (-10) + (15*8))
-		return (-10) + (15*7) + 18.4275;
-	if (yPosition >=(-10) + (15*8) && yPosition < (-10) + (15*9))
-		return (-10) + (15*8) + 17.4275;
-	if (yPosition >=(-10) + (15*9) && yPosition < (-10) + (15*10))
-		return (-10) + (15*9) + 16.4275;
-	if (yPosition >=(-10) + (15*10)&& yPosition < (-10) + (15*11))
-		return (-10) + (15*10) + 15.4275;
-	if (yPosition >=(-10) + (15*11) && yPosition < (-10) + (15*12))
-		return (-10) + (15*11) + 15.4275;
-	if (yPosition >=(-10) + (15*12) && yPosition <= (-10) + (15*13)+5)
-		return (-10) + (15*12) + 15.4275;
+	if (yPosition >=0 && yPosition <  (15*1))
+		return 10;
+	if (yPosition >= (15*1) && yPosition <  (15*2))
+		return 21.4275;
+	if (yPosition >= (15*2) && yPosition <  (15*3))
+		return (15*1) + 21.4275;
+	if (yPosition >= (15*3) && yPosition <  (15*4))
+		return (15*2) + 21.4275;
+	if (yPosition >= (15*4) && yPosition <  (15*5))
+		return (15*3) + 21.4275;
+	if (yPosition >= (15*5) && yPosition <  (15*6))
+		return (15*4) + 20.4275;
+	if (yPosition >= (15*6) && yPosition <  (15*7))
+		return  (15*5) + 19.4275;
+	if (yPosition >= (15*7) && yPosition <  (15*8))
+		return  (15*6) + 18.4275;
+	if (yPosition >= (15*8) && yPosition <  (15*9))
+		return  (15*7) + 17.4275;
+	if (yPosition >= (15*9) && yPosition <  (15*10))
+		return  (15*8) + 16.4275;
+	if (yPosition >= (15*10)&& yPosition <  (15*11))
+		return  (15*9) + 15.4275;
+	if (yPosition >= (15*11) && yPosition <  (15*12))
+		return  (15*10) + 15.4275;
+	if (yPosition >= (15*12) && yPosition <=  (15*13)+5)
+		return  (15*11) + 15.4275;
   }
   
   function genPlayback(e){
@@ -1032,18 +1052,21 @@ function getPitch(yPosition) {
 			index = 7;
 		var pitch = getPitch(parseFloat(list[x].style.top));
 		var xStart = parseFloat(list[x].style.left);
-		var xEnd = xStart + parseFloat(list[x].style.width);
-		var dur = parseFloat(list[x].style.width);
+		xStart = (xStart/100)/(tempo/60);
+		var dur = (parseFloat(list[x].style.width));
+		dur = (dur/100)/(tempo/60);
+		var xEnd = xStart + dur;
+		
 		
 		//play back the note; start time corresponds to x-coordinate, duration corresponds to width
-		inst[index].play(pitch, ctx.currentTime + (xStart/100), {duration: (dur/100)})
-		changeColor(list[x],xStart, dur); //change color of note when it is playing
+		inst[index].play(pitch, ctx.currentTime + (xStart), {duration: (dur)})
+		changeColor(list[x],(xStart), dur); //change color of note when it is playing
 	}
   }
   
   function changeColor(e, start, dur){
-	setTimeout(function(){e.style.backgroundColor = "#d3d3d3";}, start*10); 
-	setTimeout(function(){e.style.backgroundColor = "#2196F3";},(start*10)+(dur*10));
+	setTimeout(function(){e.style.backgroundColor = "#d3d3d3";}, (start*1000)); 
+	setTimeout(function(){e.style.backgroundColor = "#2196F3";},(start*1000)+(dur*1000));
   }
 
   function pitchDisplay(f) {
@@ -1064,11 +1087,14 @@ function getPitch(yPosition) {
 	if(f.target.id== "myCanvas8")
 		index = 8;
 	var parentPosition = getPosition(f.currentTarget);
-    var yPosition = f.clientY - parentPosition.y - 10;
+    var yPosition = f.clientY - parentPosition.y;
     
     var disp = getPitch(yPosition);
-	if(disp != undefined)
+
+	if(disp != undefined){
+		disp = disp.substring(0, disp.length - 1);
 		document.getElementById("pitch" + index).innerHTML = disp;
+	}
   }
   function clearDisplay(f) {
 	var index = 1;
