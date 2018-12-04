@@ -5,9 +5,37 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 
+<script>
+TogetherJSConfig_dontShowClicks = true;
+</script>
 <script src="https://togetherjs.com/togetherjs-min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
+
+TogetherJS.hub.on("deleteNote", function (msg) {
+    if (! msg.sameUrl) {
+        return;
+    }
+	var str = msg.noteID.substring(1);
+	var chars = str.slice(0, str.search(/\d/));
+	var numbs = str.replace(chars, '');
+	console.log("note: " + numbs);
+	document.getElementById("note" + (noteCount)).setAttribute("id", "note" + numbs);
+	$(msg.noteID).remove();
+	console.log("echo delete " + msg.noteID);
+	noteCount--;
+});
+
+TogetherJS.hub.on("clearTrack", function (msg) {
+    if (! msg.sameUrl) {
+        return;
+    }
+	noteCount -= $(msg.trackID + " mydiv").length;
+	console.log("noteCount: " + noteCount);
+	
+	$(msg.trackID + " > .mydiv").remove();
+});
+
 TogetherJS.hub.on("placeNote", function (msg) {
     if (! msg.sameUrl) {
         return;
@@ -30,6 +58,7 @@ TogetherJS.hub.on("togetherjs.hello", function(msg){
 	if (! msg.sameUrl || ! msg.isClient) {
         return;
     }
+	document.getElementById("file").setAttribute("display","none");
 	var list = document.getElementsByClassName("mydiv");
 	var x;
 	for(x=0; x<list.length;x++){
@@ -177,7 +206,7 @@ body {
   margin-left: 150px;
   border-radius: 5px;
   height:50px;
-  background-color: #7C7C7C;
+  background-color: #2196F3;
   float: left;
   color: #f2f2f2;
   text-align: center;
@@ -201,10 +230,10 @@ body {
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 25px;
-    height: 25px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%; 
-    background: #4CAF50;
+    background: #ffffff;
     cursor: pointer;
 }
 
@@ -212,7 +241,7 @@ body {
     width: 15px;
     height: 15px;
     border-radius: 50%;
-    background: #2196F3;
+    background: #ffffff;
     cursor: pointer;
 }
 
@@ -227,6 +256,12 @@ body {
 .hover-fade:hover {
     opacity: 1;
 }
+.hover-fade-2{
+	opacity: 1;
+}
+
+.hover-fade-2:hover {
+    opacity: 0.7;
 }
 
 </style>
@@ -247,7 +282,7 @@ body {
 </div>
 
 <!-- PLAYBACK TOOLBAR -->
-<div id="playtools" class="playback-tools" style="margin-top:-5px; z-index:1;"> 
+<div id="playtools" class="playback-tools" style="visibility: hidden; margin-top:-5px; z-index:1;"> 
 	<!-- TEMPO SLIDER -->
 	<div style="display:inline-block; margin-top:1px; float:left;">
 		<p style="display:inline;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040;">Tempo:  </p>
@@ -256,8 +291,8 @@ body {
 		<input type="range" style="margin-left: 2px; margin-top:-12px;" value="100" min="1" max="200" class="slider" id="myRange"></input>
 	</div>
 	<!-- PLAY BUTTON -->
-	<button class="hover-fade" style="margin-left: 20px; border: 2px solid #7c7c7c; border-radius: 15%; height: 60px; display:inline; float:left;" onclick="genPlayback();">
-		<i title = "Play" class = "fas fa-play-circle fa-3x" style = "color:#6baa5c;"></i>
+	<button title = "Play" class="hover-fade-2" style="margin-left: 20px; border: 2px solid #7c7c7c; border-radius: 15%; height: 60px; display:inline; float:left;" onclick="genPlayback();">
+		<i class = "fas fa-play-circle fa-3x" style = "color:#6baa5c;"></i>
 	</button>
 </div>
 <!-- End of Top Menu formatting -->
@@ -286,7 +321,7 @@ body {
 		<div style = "display:inline-block; position:relative;">
 			<span style= "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Instrument: </span>
 			<select id="ddlViewBy1" style = "border-radius: 5px;"onChange="changeInst(this);"> </select>
-			<i id="loading1" class="fas fa-sync fa-spin fa-lg" style="display: none; top:2px;z-index:3;color: #00C695; "></i>
+			<i id="loading1" class="fas fa-sync fa-spin fa-lg" style="display: inline-block; visibility: hidden; top:2px;z-index:3;color: #00C695; "></i>
 		</div>
 	</div>
 	<!-- EXTEND CANVAS BUTTON -->
@@ -320,7 +355,7 @@ var navplayback = document.querySelector(".topnav a[href='#playback']"); //refer
 var ctx = new AudioContext();
 var soundfont = new Soundfont(ctx);
 inst[0] = soundfont.instrument('marimba'); //initialize track1 instrument to marimba as default
-var tempo = 100;
+var tempo = 200;
 
 //window size used to scale display
 var width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -359,7 +394,7 @@ output.innerHTML = slider.value;
 
 slider.oninput = function() {
 	output.innerHTML = this.value;
-	tempo = this.value;
+	tempo = this.value * 2;
 }
 // top menu event listeners
  navopen.addEventListener("click", function(e){
@@ -374,22 +409,36 @@ slider.oninput = function() {
 });
 
  navplayback.addEventListener("click", function(e){
-	navplayback.setAttribute("class", "active");
 	if(document.getElementById("playtools").style.visibility == "hidden"){
 		document.getElementById("playtools").style.visibility = "visible";
-		document.getElementById("playtools").style.visibility = "visible";
+		navplayback.setAttribute("class", "active");
 	}
-	else
+	else{
 		document.getElementById("playtools").style.visibility = "hidden";
-	setTimeout(function() {navplayback.setAttribute("class", "");}, 1000);
+		navplayback.setAttribute("class", "");
+	}
+	
 });
  
 //Removes note bar when right clicked on.
 //Second  function prevents the right click options to be displayed.
 $(document).on("mousedown", "mydiv", function(ev){
 	if(ev.which == 3)
-	{
-	   $(this).remove();
+	{	
+		var str = this.id;
+		var chars = str.slice(0, str.search(/\d/));
+		var numbs = str.replace(chars, '');
+		console.log("note: " + numbs);
+		document.getElementById("note" + (noteCount)).setAttribute("id", "note" + numbs);
+		
+		$(this).remove();
+		noteCount--;
+		if(TogetherJS.running){
+			TogetherJS.send({
+				type: "deleteNote",
+				noteID: "#" + this.id
+			});
+		}
 	}
 });
 $(function() {
@@ -400,6 +449,16 @@ $(function() {
 
  //Clear track
 $(document).on('click', "[id*='clear']", function(e) {
+	//console.log("notes: " + $("#myCanvasContainer" + e.target.id.substring(e.target.id.length-1) + " mydiv").length);
+	noteCount -= $("#myCanvasContainer" + e.target.id.substring(e.target.id.length-1) + " mydiv").length;
+	console.log("noteCount: " + noteCount);
+	if(TogetherJS.running){
+			TogetherJS.send({
+				type: "clearTrack",
+				trackID: "#myCanvasContainer" + e.target.id.substring(e.target.id.length-1)
+			});
+	   }
+	
 	$("#myCanvasContainer" + e.target.id.substring(e.target.id.length-1) + " > .mydiv").remove();
 });
 
@@ -410,6 +469,11 @@ $(document).on('click', "[id*='clear']", function(e) {
 function genSave(e){
 	var list = document.getElementsByClassName("mydiv"); //get list of all notes
 	var x;
+	
+	 for(x=0; x<track; x++){
+		pSave.push("i" + x + inst[x].name + "!");
+	 }
+	
 	for(x=0; x<list.length;x++){
 		var index = "1";	//index is the track number (1-8)
 		if(list[x].parentElement.id== "myCanvasContainer2")
@@ -434,6 +498,7 @@ function genSave(e){
 		//Save the positions into a file
 		pSave.push("x" + xPos + "x y" + yPos + "y w" + width + "w t" + index + "t");       
 	 }
+	 
 	 var blob = new Blob([pSave], {type: "text/plain;charset=utf-8"});
 	 var filename = document.getElementById("score").innerHTML + ".omus";
 	 saveAs(blob, filename);
@@ -442,6 +507,10 @@ function genSave(e){
 //// OPEN ////
 function startRead()
 {
+	if(TogetherJS.running){
+		alert("You can't load files in collaborative mode!");
+		return;
+	}
   // obtain input element through DOM 
   var file = document.getElementById('file').files[0];
   if(file){
@@ -478,7 +547,7 @@ function loaded(evt)
 	}	
 	
 	var i = 0;
-	var stringx="", stringy="", stringw="", stringt="";
+	var stringx="", stringy="", stringw="", stringt="", stringi="";
 	var maxTrack = 0;
 	
 	//parse every note in the file
@@ -491,7 +560,6 @@ function loaded(evt)
 				i++;
 			}
 			i++;
-			stringx += "px";
 		}
 		//y-coordinate
 		if(fileString.charAt(i) == 'y'){
@@ -501,7 +569,6 @@ function loaded(evt)
 				i++;
 			}
 			i++;
-			stringy+="px";
 		}
 		//width
 		if(fileString.charAt(i) == 'w'){
@@ -522,25 +589,39 @@ function loaded(evt)
 			}
 			i++;
 		}
+		//instruments
+		if(fileString.charAt(i) == 'i'){
+			i++;
+			while(i < fileString.length && fileString.charAt(i) != '!'){
+				stringi += fileString.charAt(i);
+				i++;
+			}
+			i++;
+		}
+		
 		if(fileString.charAt(i) == ' ' || fileString.charAt(i) == ',')
 			i++;
+		
+		if(stringi != ""){
+			var index = parseInt(stringi[0]);
+			var name = stringi.substring(1);
+			maxTrack++;
+			if(index+1 > track){
+				add_fields(false);
+			}
 			
+				//select the instrument specified for track[index]
+	//		var name = e.options[e.selectedIndex].text;
+			$('#ddlViewBy' + (index+1)).val(stringi.substring(1));
+			inst[index] = soundfont.instrument(name);
+			stringi = "";
+		}
+		
 		//if all fields have a non-empty value, the note is ready to be added
 		if(stringx != "" && stringy != "" && stringw != "" & stringt!= ""){
 			//make sure the track exists before trying to add to it
-			while(parseInt(stringt) > track){
-				add_fields(false);
-			}
-			if(parseInt(stringt) > maxTrack)
-				maxTrack = parseInt(stringt);
-			// initialize note and and add to track
-			var curr = document.createElement("mydiv");
-			curr.setAttribute("class", "mydiv");
-            document.getElementById("myCanvasContainer" + stringt).appendChild(curr);
-			curr.style.left = stringx;
-			curr.style.top = stringy;
-			curr.style.width = stringw;
-			dragElement(curr);
+			
+			placeNote("myCanvas" + stringt, parseInt(stringt)-1, stringx, stringy, stringw, true);
 			
 			//clear fields for next note
 			stringx = "";
@@ -600,6 +681,7 @@ function changeInst(e){
 	//select the instrument specified for track[index]
 	var name = e.options[e.selectedIndex].text;
 	inst[index] = soundfont.instrument(name);
+	console.log(inst[index].name);
 	loading(index+1,true);
 	inst[index].onready(function() {
 		loading(index+1, false);
@@ -609,10 +691,12 @@ function changeInst(e){
 function loading(index,start){
 	var sym = document.getElementById("loading" + index);
 	if(start == true){
-		sym.style.display = "inline-block";
+		sym.style.visibility = "visible";
 	}
-	else
-		sym.style.display = "none";
+	else{
+		sym.style.visibility = "hidden";
+		console.log(index + " hidden");
+	}
 }
 
 function extend(f,echo){
@@ -736,23 +820,23 @@ function add_fields(echo)
 		var objTo = document.getElementById('track' + track);
 		objTo.innerHTML = 
 		'<p style="text-align:center;border-radius: 5px;height: 20px; padding: 5px; padding-right: 35px; margin-left: 5%; width:90px; background-color: #7C7C7C;text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Track ' + track + ' &nbsp;' + 
-			'<i title = "Delete track" class = "fas fa-close" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track' + track + ',false);"></i>' +
-			'<i title = "Clear track" id = "clear' + track + '" class = "fas fa-eraser" style = "color: #B1B1B1; margin-left: 20px; text-shadow: none;display:inline-block; position:absolute;"></i>' +
+			'<i title = "Delete track" class = "fas fa-times hover-fade" style = "text-shadow: none;display:inline-block; position:absolute; color:#f44336;" onclick="closetrack(track' + track + ',false);"></i>' +
+			'<i title = "Clear track" id = "clear' + track + '" class = "fas fa-eraser hover-fade" style = "color: #B1B1B1; margin-left: 20px; text-shadow: none;display:inline-block; position:absolute;"></i>' +
 		'</p>' +
-		'<div id="myCanvasContainer' + track + '" style = "z-index:2;height: 210px;" class="mydiv2">' + 
-			'<canvas id= "myCanvas' + track + '" class="mydiv2inner" height="200" width="' + currwidth + '" style= "height: 200px; width: ' + currwidth + 'px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)"></canvas>' + 
+		'<div id="myCanvasContainer' + track + '" class="mydiv2" style = "z-index:2;height: 210px;" onmousemove="pitchDisplay(event)" onmouseout="clearDisplay(event)">' +
+			'<canvas id = "myCanvas' + track + '" class = "mydiv2inner" height="200" width = "2000" style= "height: 200px; width: 2000px;" ></canvas>' +
 		'</div>' + 
-		'<div style = "z-index:1;top:200px;display:inline-block;position:relative;left:5%; width: 90%; height: 50px; border-radius: 5px; border: 1px solid #404040;background-color: #7C7C7C;">'+
+		'<div style = "z-index:1;top:200px;display:inline-block;position:relative;left:5%; width: 90%; height: 50px; border-radius: 5px; border: 1px solid #404040;background-color: #7C7C7C;">' +
 			'<p style="text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;z-index:2;display:inline-block;position:relative;padding-left:2%;">Pitch:</p>' +
 			'<div id="pitch' + track + '" class="mydiv3" style = "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff; display:inline-block;position:relative;">---</div>' +
 			'<div style = "display:inline-block; position:relative;">' +
 				'<span style= "text-shadow:-1px -1px 0 #404040, 1px -1px 0 #404040,-1px 1px 0 #404040, 1px 1px 0 #404040; color: #ffffff;">Instrument: </span>' +
 				'<select id="ddlViewBy' + track + '" style = "border-radius: 5px;"onChange="changeInst(this);"> </select>' +
-				'<i id="loading' + track + '" class="fas fa-sync fa-spin fa-lg" style="display: none; top:2px;z-index:3;color: #00C695; "></i>' +
+				'<i id="loading' + track + '" class="fas fa-sync fa-spin fa-lg" style="display: inline-block; visibility: hidden; top:2px;z-index:3;color: #00C695; "></i>' +
 			'</div>' +
 		'</div>' +
 		'<span>&nbsp;</span>' +
-		'<i title = "Extend track" class = "fas fa-plus-circle fa-lg" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>';
+		'<i title = "Extend track" class = "fas fa-plus-circle fa-lg hover-fade" style="border-radius: 5px;padding-left: 5px; padding-right: 5px; color: #B1B1B1; display:inline-block; position:absolute; left: 96%; top:150px;" onclick="extend(event,false)"></i>';
 
 		//create instrument select for track[index]
 		var e = document.getElementById("ddlViewBy" + track);
@@ -835,16 +919,16 @@ function getClickPosition(e) {
 
   function placeNote(canvasId, index, xPosition, yPosition, width, echo){
 	//create and initialize note
-	noteCount++;
 	var curr = document.createElement("mydiv");
     curr.setAttribute("class", "mydiv hover-fade");
-    curr.setAttribute("id", "note" + noteCount);
 	
 	// assign pitch based on y position and play note
 	var pitch = getPitch(yPosition);
 	var time = ctx.currentTime + 0.1;
-	inst[index].play(pitch,time, { duration: 0.5});
-	
+	if(echo==false)
+		inst[index].play(pitch,time, { duration: 0.5});
+	noteCount++;
+	curr.setAttribute("id", "note" + noteCount);
 	// specify note position
     var e = document.getElementById(canvasId);
     e.parentElement.insertBefore(curr, e); //add note to track container, before canvas obj 
@@ -949,7 +1033,7 @@ function dragElement(elmnt, index) {
     /* stop moving when mouse button is released:*/
     document.onmouseup = null;
     document.onmousemove = null;
-	if(pos2 != 0)
+	if(pos2 != 0 || dragnum!=0)
 		changePosition(elmnt.id, p, elmnt.style.width, false);
   }
 }
